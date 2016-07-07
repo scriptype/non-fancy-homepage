@@ -1,113 +1,130 @@
 html, body {
-  height: 100%;
+    height: 100%;
 }
 
 body {
-  margin: 0;
-  padding: 0;
-  font: 400 80%/1.5 helvetica, arial, sans-serif;
-  color: #333;
-  background: #ddd;
+    margin: 0;
+    padding: 0;
+    font: 400 80%/1.5 helvetica, arial, sans-serif;
+    color: #333;
+    background: #eee;
 }
 
 p {
-  line-height: 1.6;
+    line-height: 1.6;
 }
 
 .fade-in {
-  animation: fade-in .3s;
+    animation: fade-in .3s;
 }
 
 .dimmed {
-  color: #999;
+    color: #999;
 }
 
 .main-header {
-  padding: 0 0 2.4rem;
+    padding: 0 0 2.4rem;
 }
 
 .main-title {
-  margin: 0;
-  margin-bottom: 1rem;
+    margin: 0;
+    margin-bottom: 1rem;
 }
 
 .main-pagination {
-  text-align: center;
+    text-align: center;
 }
 
 .main-navigation a,
 .main-pagination .pagination-item:first-child {
-  margin-right: 2rem;
+    margin-right: 2rem;
 }
 
 .main-contents {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .main-article p,
 .main-footer p {
-  margin: 0;
-  padding: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.main-article img {
+    max-width: 100%;
+    height: auto;
 }
 
 .main-footer {
-  padding: 2.4rem 0;
+    padding: 2.4rem 0;
 }
 
 @media (max-width: 479px) {
-  .container {
-    padding: 2rem;
+    .container {
+        padding: 2rem;
   }
 
   .main-contents {
-    margin-top: -1rem;
+      margin-top: -1rem;
   }
 
   .main-article h2 {
-    margin-bottom: 0;
-    margin-top: 2rem;
+      margin-bottom: 0;
+      margin-top: 2rem;
   }
 }
 
 @media (min-width: 480px) {
-  .container {
-    width: 480px;
-    margin: 0 auto;
+    .container {
+        width: 480px;
+        margin: 0 auto;
   }
 
   .main-contents {
-    flex-direction: row;
-    flex-wrap: wrap;
-    margin-top: -1.1rem;
+      flex-direction: row;
+      flex-wrap: wrap;
+      margin-top: -1.1rem;
   }
 
   .main-article {
-    width: 200px;
+      width: 200px;
+  }
+
+  .main-article--permalink {
+      width: 100%;
   }
 
   .main-article h2 {
-    margin-bottom: -.15rem;
-    margin-top: 2.1rem;
+      margin-bottom: -.15rem;
+      margin-top: 2.1rem;
+  }
+
+  .main-article--permalink h2 {
+    margin-bottom: 1.15rem;
   }
 
   .main-header {
-    padding-top: 3rem;
+      padding-top: 3rem;
   }
 }
 
 @media (min-width: 640px) {
-  .container {
-    width: 640px;
+    .container {
+        width: 640px;
   }
 
   .main-article {
-    width: 300px;
+      width: 300px;
+  }
+
+  .main-article--permalink {
+      width: 100%;
   }
 }
 
 @keyframes fade-in {
-  from { opacity: 0 }
-  to { opacity: 1 }
+    from { opacity: 0 }
+    to { opacity: 1 }
 }
