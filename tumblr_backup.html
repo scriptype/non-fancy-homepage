@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {MobileAppHeaders}
+        <meta charset="utf-8">
+        <title>{Title}{block:PermalinkPage}{block:PostSummary} — {PostSummary}{/block:PostSummary}{/block:PermalinkPage}</title>
+        {block:Description}
+        <meta name="description" content="{MetaDescription}">
+        {/block:Description}
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" href="{Favicon}">
+        <link rel="apple-touch-icon-precomposed" href="{PortraitURL-128}">
+        <link rel="alternate" type="application/rss+xml" href="{RSS}">
+
+        <style>
+            {CustomCSS}
+        </style>
+    </head>
+    <body>
+
+        <div class="container">
+
+            <header class="main-header">
+                <h1 class="main-title"><a href="/">Enes</a></h1>
+                <nav class="main-navigation">
+                    <a href="/about-me">About me</a>
+                    <a href="/tagged/photography">Photography</a>
+                    <a href="/tagged/turkce">Türkçe</a>
+                </nav>
+                <form class="search" id="search" action="/search" method="get">
+                    <label for="q">
+                        Search:
+                        <input name="q" value="" id="q" type="text" />
+                    </label>
+                </form>
+            </header>
+
+            {block:IndexPage}
+                <section class="main-pagination">
+                    {block:Pagination}
+                        {block:PreviousPage}
+                            <a class="pagination-item pagination-item--real"
+                               href="{PreviousPage}"
+                               id="prev">&laquo; Newer</a>
+                        {/block:PreviousPage}
+                    {/block:Pagination}
+                    <span class="pagination-item pagination-item--placeholder dimmed">
+                        &laquo; Newer
+                    </span>
+                    {block:Pagination}
+                        {block:NextPage}
+                            <a class="pagination-item pagination-item--real"
+                               href="{NextPage}"
+                               id="next">Older &raquo;</a>
+                        {/block:NextPage}
+                    {/block:Pagination}
+                    <span class="pagination-item pagination-item--placeholder dimmed">
+                        Older &raquo;
+                    </span>
+                </section>
+            {/block:IndexPage}
+
+            <main class="main-contents">
+            {block:Posts inlineMediaWidth="500" inlineNestedMediaWidth="250"}
+                <article class="main-article main-article--{block:Text}text{/block:Text}{block:Photoset}photoset{/block:Photoset}{block:Photo}photo{/block:Photo}{block:RebloggedFrom}reblogged{/block:RebloggedFrom}{block:Quote}quote{/block:Quote}{block:Link}link{/block:Link}{block:Chat}chat{/block:Chat}{block:Audio}audio{/block:Audio}{block:Video}video{/block:Video}{block:Answer}answer{/block:Answer} {block:PermalinkPage}main-article--permalink{/block:PermalinkPage}">
+                    {block:Text}
+                        <header>
+                            {block:Title}
+                                <h2><a href="{Permalink}">{Title}</a></h2>
+                            {/block:Title}
+
+                            {block:RebloggedFrom}
+                                <a href="{ReblogParentURL}">
+                                    {ReblogParentName}
+                                </a>
+                            {/block:RebloggedFrom}
+                        </header>
+                        {block:Body}
+                            {Body}
+                        {/block:Body}
+                    {/block:Text}
+                    {block:Photo}
+                        <figure>
+                            {block:Caption}
+                                <figcaption>
+                                    <a href="{Permalink}">
+                                        {Caption}
+                                    </a>
+                                </figcaption>
+                            {/block:Caption}
+
+                            {block:RebloggedFrom}
+                                <a href="{ReblogParentURL}">
+                                    {ReblogParentName}
+                                </a>
+                            {/block:RebloggedFrom}
+
+                            {LinkOpenTag}
+                                <img src="{PhotoURL-HighRes}"
+                                     alt="{PhotoAlt}"
+                                     width="{PhotoWidth-HighRes}"
+                                     height="{PhotoHeight-HighRes}" />
+                            {LinkCloseTag}
+                        </figure>
+                    {/block:Photo}
+                    {block:Photoset}
+                        <figure>
+                            {block:Caption}
+                                <figcaption>
+                                    <a href="{Permalink}">
+                                        {Caption}
+                                    </a>
+                                </figcaption>
+                            {/block:Caption}
+
+                            {block:RebloggedFrom}
+                                <a href="{ReblogParentURL}">
+                                    {ReblogParentName}
+                                </a>
+                            {/block:RebloggedFrom}
+
+                            {Photoset}
+
+                            {block:Caption}
+                                <figcaption>
+                                    {Caption}
+                                </figcaption>
+                            {/block:Caption}
+                        </figure>
+                    {/block:Photoset}
+                    {block:Quote}
+                        <blockquote>
+                            {Quote}
+                        </blockquote>
+                        {block:Source}
+                            {Source}
+                        {/block:Source}
+                    {/block:Quote}
+                    {block:Link}
+                        <a {Target} href="{URL}">
+                            {block:Thumbnail}
+                                <img src="{Thumbnail-HighRes}" />
+                            {/block:Thumbnail}
+                            {block:Host}{Host}{/block:Host}
+                            {Name}
+                            {block:Excerpt}{Excerpt}{/block:Excerpt}
+                            {block:Author}{Author}{/block:Author}
+                            {block:Description}
+                                {Description}
+                            {/block:Description}
+                        </a>
+                    {/block:Link}
+                    {block:Chat}
+                        <ul>
+                            {block:Lines}
+                                <li>
+                                    {block:Label}
+                                        {Label}
+                                    {/block:Label}&nbsp;
+                                    {Line}
+                                </li>
+                            {/block:Lines}
+                        </ul>
+                    {/block:Chat}
+                    {block:Audio}
+                        {block:AudioEmbed}
+                            {AudioEmbed color="white"}
+                        {/block:AudioEmbed}
+                        {block:Caption}
+                            {Caption}
+                        {/block:Caption}
+                    {/block:Audio}
+                    {block:Video}
+                    <figure>
+                        {Video-700}
+                        {block:Caption}
+                            <figcaption>
+                                {Caption}
+                            </figcaption>
+                        {/block:Caption}
+                    </figure>
+                    {/block:Video}
+                    {block:Answer}
+                        <p>{Asker} asked:</p>
+                        <p>{Question}</p>
+                        <img src="{AskerPortraitURL-96}" />
+                        {block:Answerer}
+                            <p>{Answerer} answered:</p>
+                            <p>{Answer}</p>
+                            <img src="{AnswererPortraitURL-96}" />
+                        {/block:Answerer}
+                        <div>{Replies}</div>
+                    {/block:Answer}
+                </article>
+                {block:PermalinkPage}
+                    <section>
+                        {block:RebloggedFrom}
+                            <a href="{ReblogParentURL}">
+                                {ReblogParentName}
+                            </a>
+                        {/block:RebloggedFrom}
+                        {block:ContentSource}
+                            <a href="{SourceURL}">
+                                {lang:Source}: {SourceTitle}
+                            </a>
+                        {/block:ContentSource}
+                        {block:HasTags}
+                            {block:Tags}
+                                 <a href="{TagURL}">{Tag}</a>
+                            {/block:Tags}
+                        {/block:HasTags}
+                    </section>
+                    {block:Date}
+                        {block:NoteCount}
+                            <a href="{Permalink}#notes">
+                                {NoteCountWithLabel}
+                            </a>
+                            {block:PostNotes}
+                                {NoteCountWithLabel}
+                                {PostNotes-64}
+                            {/block:PostNotes}
+                        {/block:NoteCount}
+                        <a href="{Permalink}" title="{TimeAgo}">
+                            {ShortMonth}&nbsp;
+                            {DayOfMonth}{DayOfMonthSuffix},&nbsp;
+                            {Year}
+                        </a>
+                    {/block:Date}
+                {/block:PermalinkPage}
+            {/block:Posts}
+            </main>
+
+            <footer class="main-footer">
+                <p><em>v.2 - 2016</em></p>
+            </footer>
+
+        </div>
+
+        <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+        <script type="text/javascript">
+            window.addEventListener('DOMContentLoaded', function() {
+
+              function DOMFragmentFromText(text) {
+                var fragment = document.createDocumentFragment()
+                var container = document.createElement('div')
+                container.insertAdjacentHTML('beforeend', text)
+                fragment.appendChild(container)
+                return fragment.children[0]
+              }
+
+              function hide(element) {
+                element.style.cssText = 'transition: none; opacity: 0;'
+              }
+
+              function fadeIn(element) {
+                element.classList.add('fade-in')
+                setTimeout(function() {
+                  element.classList.remove('fade-in')
+                }, 300)
+              }
+
+              function _fetchAndPushState(url) {
+                var contents = document.querySelector('.main-contents')
+                var pagination = document.querySelector('.main-pagination')
+                var paginationButtons = document.querySelectorAll('#prev, #next')
+
+                fetch(url)
+                  .then(function(result) { return result.text() })
+                  .then(function(text) {
+                    var fragment = DOMFragmentFromText(text)
+                    pagination.outerHTML = fragment.querySelector('.main-pagination').outerHTML
+                    hide(contents)
+                    contents.outerHTML = fragment.querySelector('.main-contents').outerHTML
+                    fadeIn(document.querySelector('.main-contents'))
+                    history.pushState({}, '', url)
+                    attachPaginationHandlers()
+                  })
+              }
+
+              function attachPaginationHandlers() {
+                if (!window.history || !window.fetch) {
+                  return
+                }
+
+                var paginationButtons = document.querySelectorAll('#prev, #next')
+
+                ;[].slice.call(paginationButtons).forEach(function(btn) {
+                  btn.addEventListener('click', function(event) {
+                    event.preventDefault()
+                    _fetchAndPushState(btn.href)
+                  })
+                })
+              }
+
+              function _search(event) {
+                var value = event.which || event.keyCode
+                var notChanged = (
+                    value === 36 || value === 37 || value === 38 || value === 39 ||
+                    value === 13 || value === 16 || value === 27 || value === 20 ||
+                    event.ctrlKey || event.shiftKey || event.metaKey
+                )
+                if (!notChanged) {
+                  _fetchAndPushState('search?q=' + event.target.value)
+                }
+              }
+
+              function attachSearchHandlers() {
+                if (!window.history || !window.fetch) {
+                  return
+                }
+
+                var searchForm = document.getElementById('search')
+                var searchInput = document.getElementById('q')
+                var debouncedSearch = _.debounce(_search, 300)
+
+                searchForm.addEventListener('submit', function (event) {
+                  event.preventDefault()
+                })
+
+                searchInput.addEventListener('keydown', debouncedSearch)
+              }
+
+              attachPaginationHandlers()
+              attachSearchHandlers()
+
+            })
+
+        </script>
+
+    </body>
+</html>

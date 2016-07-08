@@ -17,11 +17,17 @@
           <a href="/tagged/photography">Photography</a>
           <a href="/tagged/turkce">Türkçe</a>
         </nav>
+        <form class="search" id="search" action="/search" method="get">
+            <label for="q">
+                Search:
+                <input name="q" value="" id="q" type="text" />
+            </label>
+        </form>
       </header>
 
       <section class="main-pagination">
-        <span class="pagination-item dimmed">&laquo; Newer</span>
-        <a class="pagination-item" href="/page/2" id="next">Older &raquo;</a>
+        <span class="pagination-item pagination-item--placeholder dimmed">&laquo; Newer</span>
+        <a class="pagination-item pagination-item--real" href="/page/2" id="next">Older &raquo;</a>
       </section>
 
       <main class="main-contents">
@@ -42,13 +48,13 @@
             <h2><a href="/another-article">Another Article</a></h2>
           </header>
           <p>Suspendisse a  turpis lacus, tempus non augue eu, ullamcorper blandit augue. Aenean maximus scelerisque aliquam. Ut convallis varius ligula sed porttitor. Suspendisse facilisis a magna eget auctor. Duis consectetur id ipsum eget tincidunt. Fusce eu porttitor.</p>
-        </article>  
+        </article>
         <article class="main-article">
           <header>
             <h2><a href="/another-article">Another Article</a></h2>
           </header>
           <p>Suspendisse a luctus tellus. Mauris nec orci ligula. Vivamus condimentum sit amet nisl at imperdiet. Donec turpis lacus, tempus non augue eu, ullamcorper blandit augue. Aenean maximus scelerisque aliquam. Ut convallis varius ligula.</p>
-        </article>  
+        </article>
         <article class="main-article">
           <header>
             <h2><a href="/some-other-article">Other Article Header</a></h2>
@@ -69,6 +75,8 @@
 
     </div>
 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js">
+    </script>
     <script src="/app.js"></script>
   </body>
 </html>
