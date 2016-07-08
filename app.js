@@ -19,7 +19,7 @@ window.addEventListener('DOMContentLoaded', function() {
     }, 300)
   }
 
-  function _fetchAndPushState(url) {
+  function route(url) {
     var contents = document.querySelector('.main-contents')
     var pagination = document.querySelector('.main-pagination')
     var paginationButtons = document.querySelectorAll('#prev, #next')
@@ -47,7 +47,7 @@ window.addEventListener('DOMContentLoaded', function() {
     ;[].slice.call(paginationButtons).forEach(function(btn) {
       btn.addEventListener('click', function(event) {
         event.preventDefault()
-        _fetchAndPushState(btn.href)
+        route(btn.href)
       })
     })
   }
@@ -60,7 +60,7 @@ window.addEventListener('DOMContentLoaded', function() {
         event.ctrlKey || event.shiftKey || event.metaKey
     )
     if (!notChanged) {
-      _fetchAndPushState('search?q=' + event.target.value)
+      route('/search/' + event.target.value)
     }
   }
 
@@ -80,7 +80,23 @@ window.addEventListener('DOMContentLoaded', function() {
     searchInput.addEventListener('keydown', debouncedSearch)
   }
 
+  function attachNavigationHandlers() {
+    if (!window.history || !window.fetch) {
+      return
+    }
+
+    var tagLinks = document.querySelectorAll('.main-navigation [href*=tagged]')
+
+    ;[].slice.call(tagLinks).forEach(function(link) {
+      link.addEventListener('click', function(event) {
+        event.preventDefault()
+        route(link.href)
+      })
+    })
+  }
+
   attachPaginationHandlers()
   attachSearchHandlers()
+  attachNavigationHandlers()
 
 })
