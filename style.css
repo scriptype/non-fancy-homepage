@@ -75,6 +75,32 @@ p {
     height: auto;
 }
 
+.main-article--permalink p {
+    margin-bottom: 1.25rem;
+}
+
+.main-article--permalink pre {
+    line-height: 2;
+    padding: 1.1rem;
+    margin: 1.45rem 0 1.35rem;
+    background: #333;
+    color: #eee;
+    font-size: 1em;
+}
+
+.main-article--permalink blockquote {
+    margin-top: 0;
+    margin-bottom: 0
+}
+
+.main-article--permalink ul {
+    margin: 1.2rem auto;
+}
+
+.main-article--permalink li {
+    line-height: 1.6;
+}
+
 .main-footer {
     padding: 2.4rem 0;
 }
@@ -124,13 +150,13 @@ p {
 
     .main-article h2,
     .main-article figcaption p {
-        margin-top: 2.2rem;
+        margin-top: 2.12rem;
         margin-bottom: .5rem;
     }
 
     .main-article--permalink h2,
     .main-article--permalink figcaption p {
-        margin-bottom: 1.15rem;
+        margin-bottom: 1.1rem;
     }
 
     .main-header {

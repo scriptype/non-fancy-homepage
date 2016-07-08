@@ -1,58 +1,57 @@
-window.addEventListener('DOMContentLoaded', function() {
+function Router(options) {
+  this.onRoute = options.onRoute
+  return this
+}
 
-  function DOMFragmentFromText(text) {
+Router.prototype.route = function(url) {
+  fetch(url)
+    .then(function(result) { return result.text() })
+    .then(function(text) {
+      history.pushState({}, '', url)
+      if (typeof this.onRoute === 'function') {
+        this.onRoute(text)
+      }
+    }.bind(this))
+}
+
+var Utils = {
+  DOMFragmentFromText: function(text) {
     var fragment = document.createDocumentFragment()
     var container = document.createElement('div')
     container.insertAdjacentHTML('beforeend', text)
     fragment.appendChild(container)
     return fragment.children[0]
-  }
+  },
 
-  function hide(element) {
+  hide: function(element) {
     element.style.cssText = 'transition: none; opacity: 0;'
-  }
+  },
 
-  function fadeIn(element) {
+  fadeIn: function(element) {
     element.classList.add('fade-in')
     setTimeout(function() {
       element.classList.remove('fade-in')
     }, 300)
   }
+}
 
-  function route(url) {
-    var contents = document.querySelector('.main-contents')
-    var pagination = document.querySelector('.main-pagination')
-    var paginationButtons = document.querySelectorAll('#prev, #next')
+var App = {
+  CONTENT: '.main-contents',
+  PAGINATION: '.main-pagination',
+  PAGINATION_LINKS: '.main-pagination a',
+  NAVIGATION_LINKS: '.main-navigation a',
+  TITLE: '.main-title a',
 
-    fetch(url)
-      .then(function(result) { return result.text() })
-      .then(function(text) {
-        var fragment = DOMFragmentFromText(text)
-        pagination.outerHTML = fragment.querySelector('.main-pagination').outerHTML
-        hide(contents)
-        contents.outerHTML = fragment.querySelector('.main-contents').outerHTML
-        fadeIn(document.querySelector('.main-contents'))
-        history.pushState({}, '', url)
-        attachPaginationHandlers()
-      })
-  }
-
-  function attachPaginationHandlers() {
-    if (!window.history || !window.fetch) {
-      return
-    }
-
-    var paginationButtons = document.querySelectorAll('#prev, #next')
-
-    ;[].slice.call(paginationButtons).forEach(function(btn) {
-      btn.addEventListener('click', function(event) {
+  bindLinksToRouter: function(nodes) {
+    ;[].slice.call(nodes).forEach(function(node) {
+      node.addEventListener('click', function(event) {
         event.preventDefault()
-        route(btn.href)
-      })
-    })
-  }
+        this.router.route(node.href)
+      }.bind(this))
+    }.bind(this))
+  },
 
-  function _search(event) {
+  onSearch: function(event) {
     var value = event.which || event.keyCode
     var notChanged = (
         value === 36 || value === 37 || value === 38 || value === 39 ||
@@ -60,43 +59,40 @@ window.addEventListener('DOMContentLoaded', function() {
         event.ctrlKey || event.shiftKey || event.metaKey
     )
     if (!notChanged) {
-      route('/search/' + event.target.value)
+      this.router.route('/search/' + event.target.value)
     }
-  }
+  },
 
-  function attachSearchHandlers() {
+  onRoute: function(result) {
+    var contents = document.querySelector(this.CONTENT)
+    var pagination = document.querySelector(this.PAGINATION)
+    var fragment = Utils.DOMFragmentFromText(result)
+    Utils.hide(contents)
+    contents.outerHTML = fragment.querySelector(this.CONTENT).outerHTML
+    Utils.fadeIn(document.querySelector(this.CONTENT))
+    pagination.outerHTML = fragment.querySelector(this.PAGINATION).outerHTML
+    this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
+  },
+
+  init: function() {
     if (!window.history || !window.fetch) {
       return
     }
+
+    this.router = new Router({
+      onRoute: this.onRoute.bind(this)
+    })
+
+    //this.bindLinksToRouter(document.querySelectorAll(this.TITLE))
+    this.bindLinksToRouter(document.querySelectorAll(this.NAVIGATION_LINKS))
+    this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
 
     var searchForm = document.getElementById('search')
     var searchInput = document.getElementById('q')
-    var debouncedSearch = _.debounce(_search, 300)
-
-    searchForm.addEventListener('submit', function (event) {
-      event.preventDefault()
-    })
-
+    var debouncedSearch = _.debounce(this.onSearch.bind(this), 300)
     searchInput.addEventListener('keydown', debouncedSearch)
+    searchForm.addEventListener('submit', function(event) { event.preventDefault() })
   }
+}
 
-  function attachNavigationHandlers() {
-    if (!window.history || !window.fetch) {
-      return
-    }
-
-    var tagLinks = document.querySelectorAll('.main-navigation [href*=tagged]')
-
-    ;[].slice.call(tagLinks).forEach(function(link) {
-      link.addEventListener('click', function(event) {
-        event.preventDefault()
-        route(link.href)
-      })
-    })
-  }
-
-  attachPaginationHandlers()
-  attachSearchHandlers()
-  attachNavigationHandlers()
-
-})
+window.addEventListener('DOMContentLoaded', App.init.bind(App))
