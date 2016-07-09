@@ -1,17 +1,91 @@
-function Router(options) {
-  this.onRoute = options.onRoute
-  return this
-}
+function RouterModule() {
+  return Backbone.Router.extend({
+    initialize: function (options) {
+      this.renderRule = options.renderRule
+      this.onRoute = options.onRoute
+    },
 
-Router.prototype.route = function(url) {
-  fetch(url)
-    .then(function(result) { return result.text() })
-    .then(function(text) {
-      history.pushState({}, '', url)
-      if (typeof this.onRoute === 'function') {
-        this.onRoute(text)
+    routes: {
+      '': 'home',
+      'about-me': 'aboutMe',
+      'tagged/:tag': 'tagged',
+      'search/(:q)': 'search',
+      'post/*path': 'post',
+      'page/:number': 'page'
+    },
+
+    home: function() {
+      if (this.renderRule()) {
+        fetch('/')
+          .then(function(result) { return result.text() })
+          .then(function(text) {
+            if (typeof this.onRoute === 'function') {
+              this.onRoute(text)
+            }
+          }.bind(this))
       }
-    }.bind(this))
+    },
+
+    aboutMe: function() {
+      if (this.renderRule()) {
+        fetch('/about-me')
+          .then(function(result) { return result.text() })
+          .then(function(text) {
+            if (typeof this.onRoute === 'function') {
+              this.onRoute(text)
+            }
+          }.bind(this))
+      }
+    },
+
+    tagged: function(tag) {
+      if (this.renderRule()) {
+        fetch('/tagged/' + tag)
+          .then(function(result) { return result.text() })
+          .then(function(text) {
+            if (typeof this.onRoute === 'function') {
+              this.onRoute(text)
+            }
+          }.bind(this))
+      }
+    },
+
+    search: function(q) {
+      if (this.renderRule()) {
+        fetch('/search/' + (q || ''))
+          .then(function(result) { return result.text() })
+          .then(function(text) {
+            if (typeof this.onRoute === 'function') {
+              this.onRoute(text)
+            }
+          }.bind(this))
+      }
+    },
+
+    post: function(path) {
+      if (this.renderRule()) {
+        fetch('/post/' + path)
+          .then(function(result) { return result.text() })
+          .then(function(text) {
+            if (typeof this.onRoute === 'function') {
+              this.onRoute(text)
+            }
+          }.bind(this))
+      }
+    },
+
+    page: function(pageNumber) {
+      if (this.renderRule()) {
+        fetch('/page/' + pageNumber)
+          .then(function(result) { return result.text() })
+          .then(function(text) {
+            if (typeof this.onRoute === 'function') {
+              this.onRoute(text)
+            }
+          }.bind(this))
+      }
+    }
+  })
 }
 
 var Utils = {
@@ -41,12 +115,18 @@ var App = {
   PAGINATION_LINKS: '.main-pagination a',
   NAVIGATION_LINKS: '.main-navigation a',
   TITLE: '.main-title a',
+  POST_TITLE: '.main-article:not(.main-article--permalink) .permalink, .read_more',
+
+  skippedFirstRender: false,
 
   bindLinksToRouter: function(nodes) {
     ;[].slice.call(nodes).forEach(function(node) {
       node.addEventListener('click', function(event) {
         event.preventDefault()
-        this.router.route(node.href)
+        var protocol = document.location.protocol
+        var host = document.location.host
+        var route = node.href.replace(protocol + '//' + host + '/', '')
+        this.router.navigate(route, { trigger: true })
       }.bind(this))
     }.bind(this))
   },
@@ -59,7 +139,7 @@ var App = {
         event.ctrlKey || event.shiftKey || event.metaKey
     )
     if (!notChanged) {
-      this.router.route('/search/' + event.target.value)
+      this.router.navigate('search/' + event.target.value, { trigger: true })
     }
   },
 
@@ -67,9 +147,12 @@ var App = {
     var contents = document.querySelector(this.CONTENT)
     var pagination = document.querySelector(this.PAGINATION)
     var fragment = Utils.DOMFragmentFromText(result)
+
     Utils.hide(contents)
     contents.outerHTML = fragment.querySelector(this.CONTENT).outerHTML
     Utils.fadeIn(document.querySelector(this.CONTENT))
+    this.bindLinksToRouter(document.querySelectorAll(this.POST_TITLE))
+
     pagination.outerHTML = fragment.querySelector(this.PAGINATION).outerHTML
     this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
   },
@@ -79,11 +162,29 @@ var App = {
       return
     }
 
+    var Router = RouterModule()
+
     this.router = new Router({
-      onRoute: this.onRoute.bind(this)
+        renderRule: function () {
+            if (this.skippedFirstRender) {
+                return true
+            } else {
+                this.skippedFirstRender = true
+                return false
+            }
+        }.bind(this),
+
+        onRoute: this.onRoute.bind(this)
     })
 
-    //this.bindLinksToRouter(document.querySelectorAll(this.TITLE))
+    this.router.on('route', function(route) {
+      console.log('routing:', route)
+    })
+
+    Backbone.history.start({ pushState: true })
+
+    this.bindLinksToRouter(document.querySelectorAll(this.TITLE))
+    this.bindLinksToRouter(document.querySelectorAll(this.POST_TITLE))
     this.bindLinksToRouter(document.querySelectorAll(this.NAVIGATION_LINKS))
     this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
 
