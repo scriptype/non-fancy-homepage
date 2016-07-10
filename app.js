@@ -8,7 +8,7 @@ function RouterModule() {
     routes: {
       '': 'home',
       'about-me': 'aboutMe',
-      'tagged/:tag': 'tagged',
+      'tagged/:path': 'tagged',
       'search/(:q)': 'search',
       'post/*path': 'post',
       'page/:number': 'page'
@@ -38,9 +38,9 @@ function RouterModule() {
       }
     },
 
-    tagged: function(tag) {
+    tagged: function(path) {
       if (this.renderRule()) {
-        fetch('/tagged/' + tag)
+        fetch('/tagged/' + path)
           .then(function(result) { return result.text() })
           .then(function(text) {
             if (typeof this.onRoute === 'function') {

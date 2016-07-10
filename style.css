@@ -125,10 +125,14 @@ p {
         margin-top: -1rem;
     }
 
+    .main-article {
+        margin-top: 2rem;
+    }
+
     .main-article h2,
     .main-article figcaption p {
         margin-bottom: 0;
-        margin-top: 2rem;
+        margin-top: 0;
     }
 }
 
@@ -149,6 +153,7 @@ p {
 
     .main-article {
         width: 200px;
+        margin-top: 2.12rem;
     }
 
     .main-article--permalink {
@@ -157,7 +162,6 @@ p {
 
     .main-article h2,
     .main-article figcaption p {
-        margin-top: 2.12rem;
         margin-bottom: .5rem;
     }
 
