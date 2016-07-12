@@ -25,7 +25,8 @@
                 <h1 class="main-title"><a href="/">Enes</a></h1>
                 <nav class="main-navigation">
                     <a href="/about-me">About me</a>
-                    <a href="/tagged/photography">Photography</a>
+                    <a href="/tagged/photography">Photo</a>
+                    <a href="/tagged/videography">Video</a>
                     <a href="/tagged/turkce">Türkçe</a>
                 </nav>
                 <form class="search" id="search" action="/search" method="get">
@@ -62,7 +63,14 @@
             <main class="main-contents
                          main-contents--{block:Permalink}permalink{/block:Permalink}{block:IndexPage}index{block:IndexPage}">
             {block:Posts inlineMediaWidth="500" inlineNestedMediaWidth="250"}
-                <article class="main-article main-article--{block:Text}text{/block:Text}{block:Photoset}photoset{/block:Photoset}{block:Photo}photo{/block:Photo}{block:RebloggedFrom}reblogged{/block:RebloggedFrom}{block:Quote}quote{/block:Quote}{block:Link}link{/block:Link}{block:Chat}chat{/block:Chat}{block:Audio}audio{/block:Audio}{block:Video}video{/block:Video}{block:Answer}answer{/block:Answer} {block:PermalinkPage}main-article--permalink{/block:PermalinkPage}">
+                <article class="main-article
+                                main-article--{PostType}
+                                {block:PermalinkPage}
+                                main-article--permalink
+                                {/block:PermalinkPage}
+                                {block:IndexPage}
+                                main-article--index
+                                {/block:IndexPage}">
                     {block:Text}
                         <header>
                             {block:Title}
@@ -103,10 +111,18 @@
                             {/block:RebloggedFrom}
                             
                             {LinkOpenTag}
+                                {block:PermalinkPage}
                                 <img src="{PhotoURL-HighRes}"
                                      alt="{PhotoAlt}"
                                      width="{PhotoWidth-HighRes}"
                                      height="{PhotoHeight-HighRes}" />
+                                {/block:PermalinkPage}
+                                {block:IndexPage}
+                                <img src="{PhotoURL-250}"
+                                     alt="{PhotoAlt}"
+                                     width="{PhotoWidth-HighRes}"
+                                     height="{PhotoHeight-HighRes}" />
+                                {/block:IndexPage}
                             {LinkCloseTag}
                         </figure>
                     {/block:Photo}
@@ -170,21 +186,28 @@
                         </ul>
                     {/block:Chat}
                     {block:Audio}
-                        {block:AudioEmbed}
-                            {AudioEmbed color="white"}
-                        {/block:AudioEmbed}
                         {block:Caption}
                             {Caption}
                         {/block:Caption}
+                        {block:AudioEmbed}
+                            {AudioEmbed color="white"}
+                        {/block:AudioEmbed}
                     {/block:Audio}
                     {block:Video}
                     <figure>
-                        {Video-700}
                         {block:Caption}
                             <figcaption>
-                                {Caption}
+                                <a href="{Permalink}" class="permalink">
+                                    {Caption}
+                                </a>
                             </figcaption>
                         {/block:Caption}
+                        {block:IndexPage}
+                            {Video-250}
+                        {/block:IndexPage}
+                        {block:PermalinkPage}
+                            {Video-700}
+                        {/block:PermalinkPage}
                     </figure>
                     {/block:Video}
                     {block:Answer}
@@ -198,41 +221,44 @@
                         {/block:Answerer}
                         <div>{Replies}</div>
                     {/block:Answer}
-                </article>
-                {block:PermalinkPage}
-                    <section>
-                        {block:RebloggedFrom}
-                            <a href="{ReblogParentURL}">
-                                {ReblogParentName}
-                            </a>
-                        {/block:RebloggedFrom}
-                        {block:ContentSource}
-                            <a href="{SourceURL}">
-                                {lang:Source}: {SourceTitle}
-                            </a>
-                        {/block:ContentSource}
-                        {block:HasTags}
-                            {block:Tags}
-                                 <a href="{TagURL}">{Tag}</a>
-                            {/block:Tags}
-                        {/block:HasTags}
+                    <footer>
+                        {block:IndexPage}
+                            {block:NoteCount}
+                            <a href="{Permalink}" class="permalink note-count">{NoteCountWithLabel}</a>
+                            {/block:NoteCount}
+                        {/block:IndexPage}
+                        {block:PermalinkPage}
+                            {block:RebloggedFrom}
+                                <a href="{ReblogParentURL}">
+                                    {ReblogParentName}
+                                </a>
+                            {/block:RebloggedFrom}
+                            {block:ContentSource}
+                                <a href="{SourceURL}">
+                                    {lang:Source}: {SourceTitle}
+                                </a>
+                            {/block:ContentSource}
+                            {block:HasTags}
+                                {block:Tags}
+                                     <a href="{TagURL}" class="tag">{Tag}</a>
+                                {/block:Tags}
+                            {/block:HasTags}
+                        {/block:PermalinkPage}
                         {block:Date}
-                            <a href="{Permalink}" title="{TimeAgo}">
-                                {ShortMonth}&nbsp;
-                                {DayOfMonth}{DayOfMonthSuffix},&nbsp;
-                                {Year}
-                            </a>
+                        <a href="{Permalink}" class="permalink date">{ShortMonth} {DayOfMonthWithZero} {Year}</a>
                         {/block:Date}
-                    </section>
-                    <section>
-                        {block:NoteCount}
-                            {block:PostNotes}
-                                {NoteCountWithLabel}
-                                {PostNotes-16}
-                            {/block:PostNotes}
-                        {/block:NoteCount}
-                    </section>
-                {/block:PermalinkPage}
+                    </footer>
+                    {block:PermalinkPage}
+                        <section>
+                            {block:NoteCount}
+                                {block:PostNotes}
+                                    {NoteCountWithLabel}
+                                    {PostNotes-16}
+                                {/block:PostNotes}
+                            {/block:NoteCount}
+                        </section>
+                    {/block:PermalinkPage}
+                </article>
             {/block:Posts}
             </main>
             
@@ -242,7 +268,6 @@
             
         </div>
         
-        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.3.3/backbone-min.js"></script>
         
@@ -258,7 +283,7 @@
                 routes: {
                   '': 'home',
                   'about-me': 'aboutMe',
-                  'tagged/:tag': 'tagged',
+                  'tagged/*path': 'tagged',
                   'search/(:q)': 'search',
                   'post/*path': 'post',
                   'page/:number': 'page'
@@ -288,9 +313,9 @@
                   }
                 },
             
-                tagged: function(tag) {
+                tagged: function(path) {
                   if (this.renderRule()) {
-                    fetch('/tagged/' + tag)
+                    fetch('/tagged/' + path)
                       .then(function(result) { return result.text() })
                       .then(function(text) {
                         if (typeof this.onRoute === 'function') {
