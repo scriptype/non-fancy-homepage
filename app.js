@@ -15,72 +15,78 @@ function RouterModule() {
     },
 
     home: function() {
+      var route = '/'
       if (this.renderRule()) {
-        fetch('/')
+        fetch(route)
           .then(function(result) { return result.text() })
           .then(function(text) {
             if (typeof this.onRoute === 'function') {
-              this.onRoute(text)
+              this.onRoute(text, route)
             }
           }.bind(this))
       }
     },
 
     aboutMe: function() {
+      var route = '/about-me'
       if (this.renderRule()) {
-        fetch('/about-me')
+        fetch(route)
           .then(function(result) { return result.text() })
           .then(function(text) {
             if (typeof this.onRoute === 'function') {
-              this.onRoute(text)
+              this.onRoute(text, route)
             }
           }.bind(this))
       }
     },
 
     tagged: function(path) {
+      var route = '/tagged/' + path
       if (this.renderRule()) {
-        fetch('/tagged/' + path)
+        fetch(route)
           .then(function(result) { return result.text() })
           .then(function(text) {
             if (typeof this.onRoute === 'function') {
-              this.onRoute(text)
+              this.onRoute(text, route)
             }
           }.bind(this))
       }
     },
 
     search: function(q) {
+      var route = '/search/' + (q || '')
       if (this.renderRule()) {
-        fetch('/search/' + (q || ''))
+        fetch(route)
           .then(function(result) { return result.text() })
           .then(function(text) {
             if (typeof this.onRoute === 'function') {
-              this.onRoute(text)
+              this.onRoute(text, route)
             }
           }.bind(this))
       }
     },
 
     post: function(path) {
+      var route = '/post/' + path
       if (this.renderRule()) {
-        fetch('/post/' + path)
+        fetch(route)
           .then(function(result) { return result.text() })
           .then(function(text) {
             if (typeof this.onRoute === 'function') {
-              this.onRoute(text)
+              this.onRoute(text, route)
             }
           }.bind(this))
       }
     },
 
     page: function(pageNumber) {
+      var route = '/page/' + pageNumber
       if (this.renderRule()) {
-        fetch('/page/' + pageNumber)
+        fetch(route)
           .then(function(result) { return result.text() })
           .then(function(text) {
             if (typeof this.onRoute === 'function') {
-              this.onRoute(text)
+              this.onRoute(text, route)
             }
           }.bind(this))
       }
@@ -106,6 +112,18 @@ var Utils = {
     setTimeout(function() {
       element.classList.remove('fade-in')
     }, 300)
+  },
+
+  getTumblrIframe() {
+    return (
+      document.getElementsByName('desktop-logged-in-controls')[0] ||
+      document.getElementsByClassName('tmblr-iframe') ||
+      document.querySelector('iframe[src*="dashboard/iframe"]')
+    )
+  },
+
+  getPostID() {
+    return document.getElementById('post-id').value
   }
 }
 
@@ -123,9 +141,8 @@ var App = {
     ;[].slice.call(nodes).forEach(function(node) {
       node.addEventListener('click', function(event) {
         event.preventDefault()
-        var protocol = document.location.protocol
-        var host = document.location.host
-        var route = node.href.replace(protocol + '//' + host + '/', '')
+        var origin = document.location.origin
+        var route = node.href.replace(origin + '/', '')
         this.router.navigate(route, { trigger: true })
       }.bind(this))
     }.bind(this))
@@ -143,7 +160,7 @@ var App = {
     }
   },
 
-  onRoute: function(result) {
+  onRoute: function(result, route) {
     var contents = document.querySelector(this.CONTENT)
     var pagination = document.querySelector(this.PAGINATION)
     var fragment = Utils.DOMFragmentFromText(result)
@@ -155,6 +172,32 @@ var App = {
 
     pagination.outerHTML = fragment.querySelector(this.PAGINATION).outerHTML
     this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
+
+    var tumblrIframe = Utils.getTumblrIframe()
+    if (!tumblrIframe) {
+      console.info('no iframe')
+      return
+    }
+    var iframeSrc = decodeURIComponent(tumblrIframe.src)
+    var iframeSrcRoot = iframeSrc.split('?')[0]
+    var iframeSrcQuery = iframeSrc.split('?')[1]
+    var iframeQueryParts = iframeSrcQuery.split('&')
+    var newSrc = [iframeSrcRoot, iframeQueryParts.map(function(part) {
+      var pid = ''
+      if (/src=/.test(part)) {
+        if (/post/.test(route)) {
+          pid = 'pid=' + Utils.getPostID()
+        }
+        return pid + '&' + 'src=' + encodeURIComponent(document.location.origin + route)
+      }
+      if (/pid=/.test(part) && !/post/.test(route)) {
+        return ''
+      }
+      return part
+    }).join('&')].join('?')
+    if (tumblrIframe.src !== newSrc) {
+      tumblrIframe.src = newSrc
+    }
   },
 
   init: function() {
