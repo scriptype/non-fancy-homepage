@@ -174,7 +174,7 @@ var App = {
     this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
 
     var tumblrIframe = Utils.getTumblrIframe()
-    if (!tumblrIframe) {
+    if (!tumblrIframe || !tumblrIframe.length) {
       console.info('no iframe')
       return
     }
