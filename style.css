@@ -89,6 +89,19 @@ p {
     height: auto;
 }
 
+.main-article--index footer {
+    display: flex;
+    justify-content: space-between;
+}
+
+.main-article--permalink footer .tag {
+    margin-right: 1em;
+}
+
+.main-article--permalink footer .date {
+    float: right;
+}
+
 .main-article--permalink p {
     margin-bottom: 1.25rem;
 }
@@ -168,6 +181,10 @@ p {
 
     .main-article--permalink {
         width: 100%;
+    }
+
+    .main-article--index.main-article--video {
+        align-self: flex-end;
     }
 
     .main-article h2,
