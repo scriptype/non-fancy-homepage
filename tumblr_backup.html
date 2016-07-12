@@ -22,6 +22,16 @@
         <div class="container">
 
             <header class="main-header">
+                <iframe class="btn x0r-btn"
+                        frameborder="0"
+                        border="0"
+                        scrolling="no"
+                        allowtransparency="true"
+                        height="20"
+                        width="45"
+                        src="https://platform.tumblr.com/v2/follow_button.html?type=follow-blog&amp;tumblelog=x0r&amp;color=white">
+                </iframe>
+
                 <h1 class="main-title"><a href="/">Enes</a></h1>
                 <nav class="main-navigation">
                     <a href="/about-me">About me</a>
@@ -223,6 +233,9 @@
                     {/block:Answer}
                     <footer>
                         {block:IndexPage}
+                            {block:Date}
+                            <a href="{Permalink}" class="permalink date">{ShortMonth} {DayOfMonthWithZero} {Year}</a>
+                            {/block:Date}
                             {block:NoteCount}
                             <a href="{Permalink}" class="permalink note-count">{NoteCountWithLabel}</a>
                             {/block:NoteCount}
@@ -243,10 +256,10 @@
                                      <a href="{TagURL}" class="tag">{Tag}</a>
                                 {/block:Tags}
                             {/block:HasTags}
+                            {block:Date}
+                            <a href="{Permalink}" class="permalink date">{ShortMonth} {DayOfMonthWithZero} {Year}</a>
+                            {/block:Date}
                         {/block:PermalinkPage}
-                        {block:Date}
-                        <a href="{Permalink}" class="permalink date">{ShortMonth} {DayOfMonthWithZero} {Year}</a>
-                        {/block:Date}
                     </footer>
                     {block:PermalinkPage}
                         <section>
@@ -257,6 +270,7 @@
                                 {/block:PostNotes}
                             {/block:NoteCount}
                         </section>
+                        <input type="hidden" id="post-id" value="{PostID}" />
                     {/block:PermalinkPage}
                 </article>
             {/block:Posts}
@@ -283,82 +297,46 @@
                 routes: {
                   '': 'home',
                   'about-me': 'aboutMe',
-                  'tagged/*path': 'tagged',
+                  'tagged/:path': 'tagged',
                   'search/(:q)': 'search',
                   'post/*path': 'post',
                   'page/:number': 'page'
                 },
 
-                home: function() {
+                _onRoute: function(route) {
                   if (this.renderRule()) {
-                    fetch('/')
+                    fetch(route)
                       .then(function(result) { return result.text() })
                       .then(function(text) {
                         if (typeof this.onRoute === 'function') {
-                          this.onRoute(text)
+                          this.onRoute(text, route)
                         }
                       }.bind(this))
                   }
+                },
+
+                home: function() {
+                  this._onRoute('/')
                 },
 
                 aboutMe: function() {
-                  if (this.renderRule()) {
-                    fetch('/about-me')
-                      .then(function(result) { return result.text() })
-                      .then(function(text) {
-                        if (typeof this.onRoute === 'function') {
-                          this.onRoute(text)
-                        }
-                      }.bind(this))
-                  }
+                  this._onRoute('/about-me')
                 },
 
                 tagged: function(path) {
-                  if (this.renderRule()) {
-                    fetch('/tagged/' + path)
-                      .then(function(result) { return result.text() })
-                      .then(function(text) {
-                        if (typeof this.onRoute === 'function') {
-                          this.onRoute(text)
-                        }
-                      }.bind(this))
-                  }
+                  this._onRoute('/tagged/' + path)
                 },
 
                 search: function(q) {
-                  if (this.renderRule()) {
-                    fetch('/search/' + (q || ''))
-                      .then(function(result) { return result.text() })
-                      .then(function(text) {
-                        if (typeof this.onRoute === 'function') {
-                          this.onRoute(text)
-                        }
-                      }.bind(this))
-                  }
+                  this._onRoute('/search/' + (q || ''))
                 },
 
                 post: function(path) {
-                  if (this.renderRule()) {
-                    fetch('/post/' + path)
-                      .then(function(result) { return result.text() })
-                      .then(function(text) {
-                        if (typeof this.onRoute === 'function') {
-                          this.onRoute(text)
-                        }
-                      }.bind(this))
-                  }
+                  this._onRoute('/post/' + path)
                 },
 
                 page: function(pageNumber) {
-                  if (this.renderRule()) {
-                    fetch('/page/' + pageNumber)
-                      .then(function(result) { return result.text() })
-                      .then(function(text) {
-                        if (typeof this.onRoute === 'function') {
-                          this.onRoute(text)
-                        }
-                      }.bind(this))
-                  }
+                  this._onRoute('/page/' + pageNumber)
                 }
               })
             }
@@ -381,6 +359,18 @@
                 setTimeout(function() {
                   element.classList.remove('fade-in')
                 }, 300)
+              },
+
+              getTumblrIframe() {
+                return (
+                  document.getElementsByName('desktop-logged-in-controls')[0] ||
+                  document.getElementsByClassName('tmblr-iframe')[0] ||
+                  document.querySelector('iframe[src*="dashboard/iframe"]')
+                )
+              },
+
+              getPostID() {
+                return document.getElementById('post-id').value
               }
             }
 
@@ -398,9 +388,8 @@
                 ;[].slice.call(nodes).forEach(function(node) {
                   node.addEventListener('click', function(event) {
                     event.preventDefault()
-                    var protocol = document.location.protocol
-                    var host = document.location.host
-                    var route = node.href.replace(protocol + '//' + host + '/', '')
+                    var origin = document.location.origin
+                    var route = node.href.replace(origin + '/', '')
                     this.router.navigate(route, { trigger: true })
                   }.bind(this))
                 }.bind(this))
@@ -418,7 +407,7 @@
                 }
               },
 
-              onRoute: function(result) {
+              onRoute: function(result, route) {
                 var contents = document.querySelector(this.CONTENT)
                 var pagination = document.querySelector(this.PAGINATION)
                 var fragment = Utils.DOMFragmentFromText(result)
@@ -430,6 +419,32 @@
 
                 pagination.outerHTML = fragment.querySelector(this.PAGINATION).outerHTML
                 this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
+
+                var tumblrIframe = Utils.getTumblrIframe()
+                if (!tumblrIframe) {
+                  console.info('no iframe')
+                  return
+                }
+                var iframeSrc = decodeURIComponent(tumblrIframe.src)
+                var iframeSrcRoot = iframeSrc.split('?')[0]
+                var iframeSrcQuery = iframeSrc.split('?')[1]
+                var iframeQueryParts = iframeSrcQuery.split('&')
+                var newSrc = [iframeSrcRoot, iframeQueryParts.map(function(part) {
+                  var pid = ''
+                  if (/src=/.test(part)) {
+                    if (/post/.test(route)) {
+                      pid = 'pid=' + Utils.getPostID()
+                    }
+                    return pid + '&' + 'src=' + encodeURIComponent(document.location.origin + route)
+                  }
+                  if (/pid=/.test(part) && !/post/.test(route)) {
+                    return ''
+                  }
+                  return part
+                }).join('&')].join('?')
+                if (tumblrIframe.src !== newSrc) {
+                  tumblrIframe.src = newSrc
+                }
               },
 
               init: function() {
@@ -440,16 +455,16 @@
                 var Router = RouterModule()
 
                 this.router = new Router({
-                    renderRule: function () {
-                        if (this.skippedFirstRender) {
-                            return true
-                        } else {
-                            this.skippedFirstRender = true
-                            return false
-                        }
-                    }.bind(this),
+                  renderRule: function () {
+                    if (this.skippedFirstRender) {
+                      return true
+                    } else {
+                      this.skippedFirstRender = true
+                      return false
+                    }
+                  }.bind(this),
 
-                    onRoute: this.onRoute.bind(this)
+                  onRoute: this.onRoute.bind(this)
                 })
 
                 this.router.on('route', function(route) {
@@ -472,7 +487,6 @@
             }
 
             window.addEventListener('DOMContentLoaded', App.init.bind(App))
-
 
         </script>
 
