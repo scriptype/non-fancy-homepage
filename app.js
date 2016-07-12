@@ -14,8 +14,7 @@ function RouterModule() {
       'page/:number': 'page'
     },
 
-    home: function() {
-      var route = '/'
+    _onRoute: function(route) {
       if (this.renderRule()) {
         fetch(route)
           .then(function(result) { return result.text() })
@@ -25,71 +24,30 @@ function RouterModule() {
             }
           }.bind(this))
       }
+    },
+
+    home: function() {
+      this._onRoute('/')
     },
 
     aboutMe: function() {
-      var route = '/about-me'
-      if (this.renderRule()) {
-        fetch(route)
-          .then(function(result) { return result.text() })
-          .then(function(text) {
-            if (typeof this.onRoute === 'function') {
-              this.onRoute(text, route)
-            }
-          }.bind(this))
-      }
+      this._onRoute('/about-me')
     },
 
     tagged: function(path) {
-      var route = '/tagged/' + path
-      if (this.renderRule()) {
-        fetch(route)
-          .then(function(result) { return result.text() })
-          .then(function(text) {
-            if (typeof this.onRoute === 'function') {
-              this.onRoute(text, route)
-            }
-          }.bind(this))
-      }
+      this._onRoute('/tagged/' + path)
     },
 
     search: function(q) {
-      var route = '/search/' + (q || '')
-      if (this.renderRule()) {
-        fetch(route)
-          .then(function(result) { return result.text() })
-          .then(function(text) {
-            if (typeof this.onRoute === 'function') {
-              this.onRoute(text, route)
-            }
-          }.bind(this))
-      }
+      this._onRoute('/search/' + (q || ''))
     },
 
     post: function(path) {
-      var route = '/post/' + path
-      if (this.renderRule()) {
-        fetch(route)
-          .then(function(result) { return result.text() })
-          .then(function(text) {
-            if (typeof this.onRoute === 'function') {
-              this.onRoute(text, route)
-            }
-          }.bind(this))
-      }
+      this._onRoute('/post/' + path)
     },
 
     page: function(pageNumber) {
-      var route = '/page/' + pageNumber
-      if (this.renderRule()) {
-        fetch(route)
-          .then(function(result) { return result.text() })
-          .then(function(text) {
-            if (typeof this.onRoute === 'function') {
-              this.onRoute(text, route)
-            }
-          }.bind(this))
-      }
+      this._onRoute('/page/' + pageNumber)
     }
   })
 }
@@ -117,7 +75,7 @@ var Utils = {
   getTumblrIframe() {
     return (
       document.getElementsByName('desktop-logged-in-controls')[0] ||
-      document.getElementsByClassName('tmblr-iframe') ||
+      document.getElementsByClassName('tmblr-iframe')[0] ||
       document.querySelector('iframe[src*="dashboard/iframe"]')
     )
   },
@@ -174,7 +132,7 @@ var App = {
     this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
 
     var tumblrIframe = Utils.getTumblrIframe()
-    if (!tumblrIframe || !tumblrIframe.length) {
+    if (!tumblrIframe) {
       console.info('no iframe')
       return
     }
@@ -208,16 +166,16 @@ var App = {
     var Router = RouterModule()
 
     this.router = new Router({
-        renderRule: function () {
-            if (this.skippedFirstRender) {
-                return true
-            } else {
-                this.skippedFirstRender = true
-                return false
-            }
-        }.bind(this),
+      renderRule: function () {
+        if (this.skippedFirstRender) {
+          return true
+        } else {
+          this.skippedFirstRender = true
+          return false
+        }
+      }.bind(this),
 
-        onRoute: this.onRoute.bind(this)
+      onRoute: this.onRoute.bind(this)
     })
 
     this.router.on('route', function(route) {
