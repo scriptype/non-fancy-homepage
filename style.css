@@ -85,6 +85,10 @@ p {
     vertical-align: middle;
 }
 
+.main-article .notes img {
+    width: auto;
+}
+
 .main-article [id*=tumblr_video_container] {
     width: 100% !important;
     height: auto !important;
