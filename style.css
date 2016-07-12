@@ -79,6 +79,16 @@ p {
     height: auto;
 }
 
+.main-article [id*=tumblr_video_container] {
+    width: 100% !important;
+    height: auto !important;
+}
+
+.main-article--index [id*=tumblr_video_container] iframe {
+    width: 100%;
+    height: auto;
+}
+
 .main-article--permalink p {
     margin-bottom: 1.25rem;
 }
