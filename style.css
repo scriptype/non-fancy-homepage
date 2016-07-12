@@ -92,6 +92,7 @@ p {
 .main-article--index footer {
     display: flex;
     justify-content: space-between;
+    flex-direction: row-reverse;
 }
 
 .main-article--permalink footer .tag {
@@ -183,7 +184,8 @@ p {
         width: 100%;
     }
 
-    .main-article--index.main-article--video {
+    .main-article--index.main-article--video,
+    .main-article--index.main-article--photo {
         align-self: flex-end;
     }
 
