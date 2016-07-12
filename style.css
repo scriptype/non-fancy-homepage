@@ -27,6 +27,11 @@ p {
     overflow: hidden;
 }
 
+.x0r-btn {
+    float: right;
+    margin-top: .7em;
+}
+
 .main-title {
     margin: 0;
     margin-bottom: 1rem;
@@ -77,6 +82,7 @@ p {
 .main-article img {
     max-width: 100%;
     height: auto;
+    vertical-align: middle;
 }
 
 .main-article [id*=tumblr_video_container] {
