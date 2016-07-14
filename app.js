@@ -8,8 +8,8 @@ function RouterModule() {
     routes: {
       '': 'home',
       'about-me': 'aboutMe',
-      'tagged/:path': 'tagged',
-      'search/(:q)': 'search',
+      'tagged/*path': 'tagged',
+      'search/*path': 'search',
       'post/*path': 'post',
       'page/:number': 'page'
     },
@@ -38,8 +38,8 @@ function RouterModule() {
       this._onRoute('/tagged/' + path)
     },
 
-    search: function(q) {
-      this._onRoute('/search/' + (q || ''))
+    search: function(path) {
+      this._onRoute('/search/' + (path || ''))
     },
 
     post: function(path) {
