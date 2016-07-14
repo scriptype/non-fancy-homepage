@@ -87,8 +87,10 @@ var Utils = {
 
 var App = {
   CONTENT: '.main-contents',
-  PAGINATION: '.main-pagination',
+  TOP_PAGINATION: '.main-pagination--top',
+  BOTTOM_PAGINATION: '.main-pagination--bottom',
   PAGINATION_LINKS: '.main-pagination a',
+  BOTTOM_PAGINATION_LINKS: '.main-pagination--bottom a',
   NAVIGATION_LINKS: '.main-navigation a',
   TITLE: '.main-title a',
   POST_TITLE: '.main-article:not(.main-article--permalink) .permalink, .read_more',
@@ -110,7 +112,7 @@ var App = {
     var value = event.which || event.keyCode
     var notChanged = (
         value === 36 || value === 37 || value === 38 || value === 39 ||
-        value === 13 || value === 16 || value === 27 || value === 20 ||
+        value === 16 || value === 27 || value === 20 ||
         event.ctrlKey || event.shiftKey || event.metaKey
     )
     if (!notChanged) {
@@ -119,18 +121,31 @@ var App = {
   },
 
   onRoute: function(result, route) {
-    var contents = document.querySelector(this.CONTENT)
-    var pagination = document.querySelector(this.PAGINATION)
     var fragment = Utils.DOMFragmentFromText(result)
 
+    // Get content section
+    var contents = document.querySelector(this.CONTENT)
+    // Refresh content section
     Utils.hide(contents)
     contents.outerHTML = fragment.querySelector(this.CONTENT).outerHTML
     Utils.fadeIn(document.querySelector(this.CONTENT))
     this.bindLinksToRouter(document.querySelectorAll(this.POST_TITLE))
 
-    pagination.outerHTML = fragment.querySelector(this.PAGINATION).outerHTML
+    // Get pagination sections
+    var topPagination = document.querySelector(this.TOP_PAGINATION)
+    var bottomPagination = document.querySelector(this.BOTTOM_PAGINATION)
+    // Refresh pagination sections
+    topPagination.outerHTML = fragment.querySelector(this.TOP_PAGINATION).outerHTML
+    bottomPagination.outerHTML = fragment.querySelector(this.BOTTOM_PAGINATION).outerHTML
     this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
+    this.bindBottomPaginationLinksClickHandlers()
 
+    var searchInput = document.getElementById('q')
+    if (!/^\/search/.test(route)) {
+      document.getElementById('q').value = ''
+    }
+
+    // Handle tumblr iframe
     var tumblrIframe = Utils.getTumblrIframe()
     if (!tumblrIframe) {
       console.info('no iframe')
@@ -148,7 +163,7 @@ var App = {
         }
         return pid + '&' + 'src=' + encodeURIComponent(document.location.origin + route)
       }
-      if (/pid=/.test(part) && !/post/.test(route)) {
+      if (/pid=/.test(part) && !/^\/post/.test(route)) {
         return ''
       }
       return part
@@ -156,6 +171,15 @@ var App = {
     if (tumblrIframe.src !== newSrc) {
       tumblrIframe.src = newSrc
     }
+  },
+
+  bindBottomPaginationLinksClickHandlers() {
+    ;[].slice.call(document.querySelectorAll(this.BOTTOM_PAGINATION_LINKS))
+      .forEach(function(el) {
+        el.addEventListener('click', function() {
+          document.location.hash = 'top'
+        })
+      })
   },
 
   init: function() {
@@ -188,6 +212,7 @@ var App = {
     this.bindLinksToRouter(document.querySelectorAll(this.POST_TITLE))
     this.bindLinksToRouter(document.querySelectorAll(this.NAVIGATION_LINKS))
     this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
+    this.bindBottomPaginationLinksClickHandlers()
 
     var searchForm = document.getElementById('search')
     var searchInput = document.getElementById('q')
