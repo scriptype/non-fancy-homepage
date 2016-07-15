@@ -95,7 +95,8 @@ p {
     vertical-align: middle;
 }
 
-.main-article .notes img {
+.main-article .notes img,
+.main-article .following img {
     width: auto;
 }
 

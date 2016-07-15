@@ -1,3 +1,44 @@
+function FollowingBlogsDataModule() {
+  // {block:Following}
+  return [
+    // {block:Followed}
+    {
+      avatar: '{FollowedPortraitURL-16}',
+      title: '{FollowedTitle}',
+      name: '{FollowedName}',
+      url: '{FollowedURL}'
+    },
+    // {block:Followed}
+  ]
+  // {/block:Following}
+  return []
+}
+
+function FollowingBlogsModule() {
+  var followingData = FollowingBlogsDataModule()
+  var sortedFollowingData = followingData.sort(function(p, n) {
+    var a = (p.title[0] || '').toUpperCase()
+    var b = (n.title[0] || '').toUpperCase()
+    return a > b ? 1 : (b > a ? -1 : 0)
+  })
+  return ''                                               +
+    '<h3>Blogs I follow:</h3>'                            +
+    '<ol class="following">'                              +
+      sortedFollowingData.map(function(fw) {
+        return ''                                         +
+          '<li>'                                          +
+            '<a href="' + fw.url  + '" target="_blank">'  +
+              '<img src="' + fw.avatar + '" '             +
+                   'alt="' + fw.name + '" />'             +
+            '</a> '                                       +
+            '<a href="' + fw.url  + '" target="_blank">'  +
+              fw.title                                    +
+            '</a>'                                        +
+          '</li>'
+      }).join('')                                         +
+    '</ol>'
+}
+
 function RouterModule() {
   return Backbone.Router.extend({
     initialize: function (options) {
@@ -15,7 +56,7 @@ function RouterModule() {
     },
 
     _onRoute: function(route) {
-      if (this.renderRule()) {
+      if (this.renderRule(route)) {
         fetch(route)
           .then(function(result) { return result.text() })
           .then(function(text) {
@@ -87,6 +128,7 @@ var Utils = {
 
 var App = {
   CONTENT: '.main-contents',
+  ABOUT_ME_CONTENT: '.main-contents .main-article',
   TOP_PAGINATION: '.main-pagination--top',
   BOTTOM_PAGINATION: '.main-pagination--bottom',
   PAGINATION_LINKS: '.main-pagination a',
@@ -140,9 +182,14 @@ var App = {
     this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
     this.bindBottomPaginationLinksClickHandlers()
 
-    var searchInput = document.getElementById('q')
+    // Reset search input's value if it's not search route any more
     if (!/^\/search/.test(route)) {
       document.getElementById('q').value = ''
+    }
+
+    // Perform some dynamic rendering if it's /about-me
+    if (/^\/about-me$/.test(route)) {
+      this.renderAboutMePage()
     }
 
     // Handle tumblr iframe
@@ -173,6 +220,12 @@ var App = {
     }
   },
 
+  renderAboutMePage() {
+    var aboutMeContent = document.querySelector(this.ABOUT_ME_CONTENT)
+    var followingBlogs = FollowingBlogsModule()
+    aboutMeContent.insertAdjacentHTML('beforeend', followingBlogs)
+  },
+
   bindBottomPaginationLinksClickHandlers() {
     ;[].slice.call(document.querySelectorAll(this.BOTTOM_PAGINATION_LINKS))
       .forEach(function(el) {
@@ -190,10 +243,14 @@ var App = {
     var Router = RouterModule()
 
     this.router = new Router({
-      renderRule: function () {
+      renderRule: function (route) {
         if (this.skippedFirstRender) {
           return true
+
         } else {
+          if (/^\/about-me$/.test(route)) {
+            this.renderAboutMePage()
+          }
           this.skippedFirstRender = true
           return false
         }
