@@ -18,9 +18,9 @@
         </style>
     </head>
     <body>
-        
+
         <div class="container">
-            
+
             <header class="main-header">
                 <iframe class="btn social-badge"
                         frameborder="0"
@@ -55,7 +55,7 @@
                     </label>
                 </form>
             </header>
-            
+
             <section class="main-pagination main-pagination--top">
                 {block:IndexPage}
                     {block:Pagination}
@@ -78,7 +78,7 @@
                     </span>
                 {/block:IndexPage}
             </section>
-            
+
             <main class="main-contents
                          main-contents--{block:Permalink}permalink{/block:Permalink}{block:IndexPage}index{block:IndexPage}">
             {block:Posts inlineMediaWidth="500" inlineNestedMediaWidth="250"}
@@ -102,7 +102,7 @@
                                 {/block:PermalinkPage}
                                 </h2>
                             {/block:Title}
-                            
+
                             {block:RebloggedFrom}
                                 <a href="{ReblogParentURL}">
                                     {ReblogParentName}
@@ -122,13 +122,13 @@
                                     </a>
                                 </figcaption>
                             {/block:Caption}
-                            
+
                             {block:RebloggedFrom}
                                 <a href="{ReblogParentURL}">
                                     {ReblogParentName}
                                 </a>
                             {/block:RebloggedFrom}
-                            
+
                             {LinkOpenTag}
                                 {block:PermalinkPage}
                                 <img src="{PhotoURL-HighRes}"
@@ -154,15 +154,15 @@
                                     </a>
                                 </figcaption>
                             {/block:Caption}
-                            
+
                             {block:RebloggedFrom}
                                 <a href="{ReblogParentURL}">
                                     {ReblogParentName}
                                 </a>
                             {/block:RebloggedFrom}
-                            
+
                             {Photoset}
-                            
+
                             {block:Caption}
                                 <figcaption>
                                     {Caption}
@@ -296,7 +296,7 @@
                 </article>
             {/block:Posts}
             </main>
-            
+
             <section class="main-pagination main-pagination--bottom {block:NoSearchResults}hidden{/block:NoSearchResults}">
                 {block:IndexPage}
                     {block:Pagination}
@@ -319,8 +319,8 @@
                     </span>
                 {/block:IndexPage}
             </section>
-            
-            
+
+
             <footer class="main-footer">
                 <p><em>v.2-beta - Sat, Jul 9, 2016 ~</em></p>
                 <p>
@@ -330,12 +330,12 @@
                 </p>
 
             </footer>
-            
+
         </div>
-        
+
         <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.3.3/backbone-min.js"></script>
-        
+
         <script type="text/javascript">
 
             function FollowingBlogsDataModule() {
@@ -353,7 +353,7 @@
               // {/block:Following}
               return []
             }
-            
+
             function FollowingBlogsModule() {
               var followingData = FollowingBlogsDataModule()
               var sortedFollowingData = followingData.sort(function(p, n) {
@@ -378,14 +378,14 @@
                   }).join('')                                         +
                 '</ol>'
             }
-            
+
             function RouterModule() {
               return Backbone.Router.extend({
                 initialize: function (options) {
                   this.renderRule = options.renderRule
                   this.onRoute = options.onRoute
                 },
-            
+
                 routes: {
                   '': 'home',
                   'about-me': 'aboutMe',
@@ -394,7 +394,7 @@
                   'post/*path': 'post',
                   'page/:number': 'page'
                 },
-            
+
                 _onRoute: function(route) {
                   if (this.renderRule(route)) {
                     fetch(route)
@@ -406,33 +406,33 @@
                       }.bind(this))
                   }
                 },
-            
+
                 home: function() {
                   this._onRoute('/')
                 },
-            
+
                 aboutMe: function() {
                   this._onRoute('/about-me')
                 },
-            
+
                 tagged: function(path) {
                   this._onRoute('/tagged/' + path)
                 },
-            
+
                 search: function(path) {
                   this._onRoute('/search/' + (path || ''))
                 },
-            
+
                 post: function(path) {
                   this._onRoute('/post/' + path)
                 },
-            
+
                 page: function(pageNumber) {
                   this._onRoute('/page/' + pageNumber)
                 }
               })
             }
-            
+
             var Utils = {
               DOMFragmentFromText: function(text) {
                 var fragment = document.createDocumentFragment()
@@ -441,18 +441,18 @@
                 fragment.appendChild(container)
                 return fragment.children[0]
               },
-            
+
               hide: function(element) {
                 element.style.cssText = 'transition: none; opacity: 0;'
               },
-            
+
               fadeIn: function(element) {
                 element.classList.add('fade-in')
                 setTimeout(function() {
                   element.classList.remove('fade-in')
                 }, 300)
               },
-            
+
               getTumblrIframe() {
                 return (
                   document.getElementsByName('desktop-logged-in-controls')[0] ||
@@ -460,12 +460,12 @@
                   document.querySelector('iframe[src*="dashboard/iframe"]')
                 )
               },
-            
+
               getPostID() {
                 return document.getElementById('post-id').value
               }
             }
-            
+
             var App = {
               CONTENT: '.main-contents',
               ABOUT_ME_CONTENT: '.main-contents .main-article',
@@ -476,9 +476,9 @@
               NAVIGATION_LINKS: '.main-navigation a',
               TITLE: '.main-title a',
               POST_TITLE: '.main-article:not(.main-article--permalink) .permalink, .read_more',
-            
+
               skippedFirstRender: false,
-            
+
               bindLinksToRouter: function(nodes) {
                 ;[].slice.call(nodes).forEach(function(node) {
                   node.addEventListener('click', function(event) {
@@ -489,7 +489,7 @@
                   }.bind(this))
                 }.bind(this))
               },
-            
+
               onSearch: function(event) {
                 var value = event.which || event.keyCode
                 var notChanged = (
@@ -501,10 +501,10 @@
                   this.router.navigate('search/' + event.target.value, { trigger: true })
                 }
               },
-            
+
               onRoute: function(result, route) {
                 var fragment = Utils.DOMFragmentFromText(result)
-            
+
                 // Get content section
                 var contents = document.querySelector(this.CONTENT)
                 // Refresh content section
@@ -512,7 +512,7 @@
                 contents.outerHTML = fragment.querySelector(this.CONTENT).outerHTML
                 Utils.fadeIn(document.querySelector(this.CONTENT))
                 this.bindLinksToRouter(document.querySelectorAll(this.POST_TITLE))
-            
+
                 // Get pagination sections
                 var topPagination = document.querySelector(this.TOP_PAGINATION)
                 var bottomPagination = document.querySelector(this.BOTTOM_PAGINATION)
@@ -521,17 +521,17 @@
                 bottomPagination.outerHTML = fragment.querySelector(this.BOTTOM_PAGINATION).outerHTML
                 this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
                 this.bindBottomPaginationLinksClickHandlers()
-            
+
                 // Reset search input's value if it's not search route any more
                 if (!/^\/search/.test(route)) {
                   document.getElementById('q').value = ''
                 }
-            
+
                 // Perform some dynamic rendering if it's /about-me
                 if (/^\/about-me$/.test(route)) {
                   this.renderAboutMePage()
                 }
-            
+
                 // Handle tumblr iframe
                 var tumblrIframe = Utils.getTumblrIframe()
                 if (!tumblrIframe) {
@@ -559,13 +559,13 @@
                   tumblrIframe.src = newSrc
                 }
               },
-            
+
               renderAboutMePage() {
                 var aboutMeContent = document.querySelector(this.ABOUT_ME_CONTENT)
                 var followingBlogs = FollowingBlogsModule()
                 aboutMeContent.insertAdjacentHTML('beforeend', followingBlogs)
               },
-            
+
               bindBottomPaginationLinksClickHandlers() {
                 ;[].slice.call(document.querySelectorAll(this.BOTTOM_PAGINATION_LINKS))
                   .forEach(function(el) {
@@ -574,19 +574,19 @@
                     })
                   })
               },
-            
+
               init: function() {
                 if (!window.history || !window.fetch) {
                   return
                 }
-            
+
                 var Router = RouterModule()
-            
+
                 this.router = new Router({
                   renderRule: function (route) {
                     if (this.skippedFirstRender) {
                       return true
-            
+
                     } else {
                       if (/^\/about-me$/.test(route)) {
                         this.renderAboutMePage()
@@ -595,22 +595,22 @@
                       return false
                     }
                   }.bind(this),
-            
+
                   onRoute: this.onRoute.bind(this)
                 })
-            
+
                 this.router.on('route', function(route) {
                   console.log('routing:', route)
                 })
-            
+
                 Backbone.history.start({ pushState: true })
-            
+
                 this.bindLinksToRouter(document.querySelectorAll(this.TITLE))
                 this.bindLinksToRouter(document.querySelectorAll(this.POST_TITLE))
                 this.bindLinksToRouter(document.querySelectorAll(this.NAVIGATION_LINKS))
                 this.bindLinksToRouter(document.querySelectorAll(this.PAGINATION_LINKS))
                 this.bindBottomPaginationLinksClickHandlers()
-            
+
                 var searchForm = document.getElementById('search')
                 var searchInput = document.getElementById('q')
                 var debouncedSearch = _.debounce(this.onSearch.bind(this), 300)
@@ -618,10 +618,10 @@
                 searchForm.addEventListener('submit', function(event) { event.preventDefault() })
               }
             }
-            
+
             window.addEventListener('DOMContentLoaded', App.init.bind(App))
 
         </script>
-        
+
     </body>
 </html>
