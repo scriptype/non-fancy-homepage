@@ -105,8 +105,11 @@ p {
     height: auto !important;
 }
 
-.main-article--index [id*=tumblr_video_container] iframe {
+.main-article [id*=tumblr_video_container] iframe {
     width: 100%;
+}
+
+.main-article--index [id*=tumblr_video_container] iframe {
     height: auto;
 }
 
