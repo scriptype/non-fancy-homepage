@@ -142,10 +142,12 @@ var App = {
   bindLinksToRouter: function(nodes) {
     ;[].slice.call(nodes).forEach(function(node) {
       node.addEventListener('click', function(event) {
-        event.preventDefault()
-        var origin = document.location.origin
-        var route = node.href.replace(origin + '/', '')
-        this.router.navigate(route, { trigger: true })
+        if (!event.metaKey && !event.altKey && !event.ctrlKey && !event.shiftKey) {
+          event.preventDefault()
+          var origin = document.location.origin
+          var route = node.href.replace(origin + '/', '')
+          this.router.navigate(route, { trigger: true })
+        }
       }.bind(this))
     }.bind(this))
   },
