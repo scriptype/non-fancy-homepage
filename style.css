@@ -226,6 +226,11 @@ p {
     .main-header {
         padding-top: 3rem;
     }
+
+    .following {
+        column-count: 2;
+        column-gap: 75px;
+    }
 }
 
 @media (min-width: 640px) {
