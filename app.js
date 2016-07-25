@@ -220,6 +220,9 @@ var App = {
     if (tumblrIframe.src !== newSrc) {
       tumblrIframe.src = newSrc
     }
+
+    // Update page title
+    document.title = fragment.querySelector('title').innerText
   },
 
   renderAboutMePage() {
