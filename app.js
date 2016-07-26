@@ -52,7 +52,8 @@ function RouterModule() {
       'tagged/*path': 'tagged',
       'search/*path': 'search',
       'post/*path': 'post',
-      'page/:number': 'page'
+      'page/:number': 'page',
+      '*notfound': 'notFound'
     },
 
     _onRoute: function(route) {
@@ -65,6 +66,10 @@ function RouterModule() {
             }
           }.bind(this))
       }
+    },
+
+    notFound: function(route) {
+      this._onRoute(route)
     },
 
     home: function() {
