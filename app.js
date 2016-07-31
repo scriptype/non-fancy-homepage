@@ -141,6 +141,7 @@ var App = {
   NAVIGATION_LINKS: '.main-navigation a',
   TITLE: '.main-title a',
   POST_TITLE: '.main-article:not(.main-article--permalink) .permalink, .read_more',
+  DISCUSS_SCRIPT_ID: 'disqus_embed',
 
   skippedFirstRender: false,
 
@@ -228,12 +229,44 @@ var App = {
 
     // Update page title
     document.title = fragment.querySelector('title').innerText
+
+    // Disqus
+    if (/^\/post\//.test(route)) {
+      this.renderDisqus(route)
+    }
   },
 
   renderAboutMePage() {
     var aboutMeContent = document.querySelector(this.ABOUT_ME_CONTENT)
     var followingBlogs = FollowingBlogsModule()
     aboutMeContent.insertAdjacentHTML('beforeend', followingBlogs)
+  },
+
+  renderDisqus(route) {
+    var previousEmbed = document.getElementById(this.DISCUSS_SCRIPT_ID)
+    if (previousEmbed) {
+      DISQUS.reset({
+        reload: true,
+        config: function () {
+          this.page.identifier = route.match(/\/post\/(.+)\//)[1]
+          this.page.url = document.location.href
+          this.page.title = document.title
+        }
+      })
+
+    } else {
+      var dsq = document.createElement('script')
+      var disqus_shortname = '{text:Disqus Shortname}'
+      dsq.type = 'text/javascript'
+      dsq.async = true
+      dsq.id = this.DISCUSS_SCRIPT_ID
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js'
+      var target = (
+        document.getElementsByTagName('head')[0] ||
+        document.getElementsByTagName('body')[0]
+      )
+      target.appendChild(dsq)
+    }
   },
 
   bindBottomPaginationLinksClickHandlers() {
@@ -260,6 +293,9 @@ var App = {
         } else {
           if (/^\/about-me$/.test(route)) {
             this.renderAboutMePage()
+          }
+          if (/^\/post\//.test(route)) {
+            this.renderDisqus(route)
           }
           this.skippedFirstRender = true
           return false

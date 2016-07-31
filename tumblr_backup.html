@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html>
     <head>
-        {MobileAppHeaders}
         <meta charset="utf-8">
         <title>{Title}{block:PermalinkPage}{block:PostSummary} — {PostSummary}{/block:PostSummary}{/block:PermalinkPage}</title>
         {block:Description}
         <meta name="description" content="{MetaDescription}">
         {/block:Description}
 
+        <meta name='text:Disqus Shortname' content='' />
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" href="{Favicon}">
         <link rel="apple-touch-icon-precomposed" href="{PortraitURL-128}">
@@ -295,6 +295,10 @@
                     {/block:PermalinkPage}
                 </article>
             {/block:Posts}
+
+            {block:PermalinkPage}
+                <div id="disqus_thread"></div>
+            {block:PermalinkPage}
             </main>
 
             <section class="main-pagination main-pagination--bottom {block:NoSearchResults}hidden{/block:NoSearchResults}">
@@ -392,7 +396,8 @@
                   'tagged/*path': 'tagged',
                   'search/*path': 'search',
                   'post/*path': 'post',
-                  'page/:number': 'page'
+                  'page/:number': 'page',
+                  '*notfound': 'notFound'
                 },
 
                 _onRoute: function(route) {
@@ -405,6 +410,10 @@
                         }
                       }.bind(this))
                   }
+                },
+
+                notFound: function(route) {
+                  this._onRoute(route)
                 },
 
                 home: function() {
@@ -476,16 +485,19 @@
               NAVIGATION_LINKS: '.main-navigation a',
               TITLE: '.main-title a',
               POST_TITLE: '.main-article:not(.main-article--permalink) .permalink, .read_more',
+              DISCUSS_SCRIPT_ID: 'disqus_embed',
 
               skippedFirstRender: false,
 
               bindLinksToRouter: function(nodes) {
                 ;[].slice.call(nodes).forEach(function(node) {
                   node.addEventListener('click', function(event) {
-                    event.preventDefault()
-                    var origin = document.location.origin
-                    var route = node.href.replace(origin + '/', '')
-                    this.router.navigate(route, { trigger: true })
+                    if (!event.metaKey && !event.altKey && !event.ctrlKey && !event.shiftKey) {
+                      event.preventDefault()
+                      var origin = document.location.origin
+                      var route = node.href.replace(origin + '/', '')
+                      this.router.navigate(route, { trigger: true })
+                    }
                   }.bind(this))
                 }.bind(this))
               },
@@ -558,12 +570,47 @@
                 if (tumblrIframe.src !== newSrc) {
                   tumblrIframe.src = newSrc
                 }
+
+                // Update page title
+                document.title = fragment.querySelector('title').innerText
+
+                // Disqus
+                if (/^\/post\//.test(route)) {
+                    this.renderDisqus(route)
+                }
               },
 
               renderAboutMePage() {
                 var aboutMeContent = document.querySelector(this.ABOUT_ME_CONTENT)
                 var followingBlogs = FollowingBlogsModule()
                 aboutMeContent.insertAdjacentHTML('beforeend', followingBlogs)
+              },
+
+              renderDisqus(route) {
+                var previousEmbed = document.getElementById(this.DISCUSS_SCRIPT_ID)
+                if (previousEmbed) {
+                    DISQUS.reset({
+                        reload: true,
+                        config: function () {
+                            this.page.identifier = route.match(/\/post\/(.+)\//)[1]
+                            this.page.url = document.location.href
+                            this.page.title = document.title
+                        }
+                    })
+
+                } else {
+                    var dsq = document.createElement('script')
+                    var disqus_shortname = '{text:Disqus Shortname}'
+                    dsq.type = 'text/javascript'
+                    dsq.async = true
+                    dsq.id = this.DISCUSS_SCRIPT_ID
+                    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js'
+                    var target = (
+                        document.getElementsByTagName('head')[0] ||
+                        document.getElementsByTagName('body')[0]
+                    )
+                    target.appendChild(dsq)
+                }
               },
 
               bindBottomPaginationLinksClickHandlers() {
@@ -590,6 +637,9 @@
                     } else {
                       if (/^\/about-me$/.test(route)) {
                         this.renderAboutMePage()
+                      }
+                      if (/^\/post\//.test(route)) {
+                          this.renderDisqus(route)
                       }
                       this.skippedFirstRender = true
                       return false
