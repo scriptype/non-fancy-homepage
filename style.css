@@ -153,6 +153,10 @@ p {
     line-height: 1.6;
 }
 
+.main-comments {
+    margin-top: 2.12rem;
+}
+
 .main-footer {
     padding: 2.4rem 0;
 }
