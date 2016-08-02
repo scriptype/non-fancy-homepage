@@ -200,6 +200,17 @@ var App = {
       this.renderAboutMePage()
     }
 
+    // Update page title
+    document.title = fragment.querySelector('title').innerText
+
+    // Disqus
+    if (/^\/post\//.test(route)) {
+      this.renderDisqus(route)
+    }
+
+    // Inform counter
+    SayiClient.count()
+
     // Handle tumblr iframe
     var tumblrIframe = Utils.getTumblrIframe()
     if (!tumblrIframe) {
@@ -225,14 +236,6 @@ var App = {
     }).join('&')].join('?')
     if (tumblrIframe.src !== newSrc) {
       tumblrIframe.src = newSrc
-    }
-
-    // Update page title
-    document.title = fragment.querySelector('title').innerText
-
-    // Disqus
-    if (/^\/post\//.test(route)) {
-      this.renderDisqus(route)
     }
   },
 
