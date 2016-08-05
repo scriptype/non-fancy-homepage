@@ -84,7 +84,7 @@ p {
     padding: 0;
 }
 
-.main-article figcaption p {
+.main-article:not(.main-article--reblog) figcaption p {
     font-size: 1.5em;
     font-weight: bold;
 }
