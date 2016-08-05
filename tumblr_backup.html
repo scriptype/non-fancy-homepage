@@ -89,7 +89,10 @@
                                 {/block:PermalinkPage}
                                 {block:IndexPage}
                                 main-article--index
-                                {/block:IndexPage}">
+                                {/block:IndexPage}
+                                {block:RebloggedFrom}
+                                main-article--reblog
+                                {/block:RebloggedFrom}">
                     {block:Text}
                         <header>
                             {block:Title}
@@ -122,12 +125,6 @@
                                     </a>
                                 </figcaption>
                             {/block:Caption}
-
-                            {block:RebloggedFrom}
-                                <a href="{ReblogParentURL}">
-                                    {ReblogParentName}
-                                </a>
-                            {/block:RebloggedFrom}
 
                             {LinkOpenTag}
                                 {block:PermalinkPage}
@@ -339,6 +336,7 @@
 
         <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.3.3/backbone-min.js"></script>
+        <script src="//sayi.herokuapp.com/client.min.js"></script>
 
         <script type="text/javascript">
 
@@ -544,6 +542,17 @@
                   this.renderAboutMePage()
                 }
 
+                // Update page title
+                document.title = fragment.querySelector('title').innerText
+
+                // Disqus
+                if (/^\/post\//.test(route)) {
+                  this.renderDisqus(route)
+                }
+
+                // Inform counter
+                SayiClient.count()
+
                 // Handle tumblr iframe
                 var tumblrIframe = Utils.getTumblrIframe()
                 if (!tumblrIframe) {
@@ -570,14 +579,6 @@
                 if (tumblrIframe.src !== newSrc) {
                   tumblrIframe.src = newSrc
                 }
-
-                // Update page title
-                document.title = fragment.querySelector('title').innerText
-
-                // Disqus
-                if (/^\/post\//.test(route)) {
-                    this.renderDisqus(route)
-                }
               },
 
               renderAboutMePage() {
@@ -589,27 +590,27 @@
               renderDisqus(route) {
                 var previousEmbed = document.getElementById(this.DISCUSS_SCRIPT_ID)
                 if (previousEmbed) {
-                    DISQUS.reset({
-                        reload: true,
-                        config: function () {
-                            this.page.identifier = route.match(/\/post\/(.+)\//)[1]
-                            this.page.url = document.location.href
-                            this.page.title = document.title
-                        }
-                    })
+                  DISQUS.reset({
+                    reload: true,
+                    config: function () {
+                      this.page.identifier = route.match(/\/post\/(.+)\//)[1]
+                      this.page.url = document.location.href
+                      this.page.title = document.title
+                    }
+                  })
 
                 } else {
-                    var dsq = document.createElement('script')
-                    var disqus_shortname = '{text:Disqus Shortname}'
-                    dsq.type = 'text/javascript'
-                    dsq.async = true
-                    dsq.id = this.DISCUSS_SCRIPT_ID
-                    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js'
-                    var target = (
-                        document.getElementsByTagName('head')[0] ||
-                        document.getElementsByTagName('body')[0]
-                    )
-                    target.appendChild(dsq)
+                  var dsq = document.createElement('script')
+                  var disqus_shortname = '{text:Disqus Shortname}'
+                  dsq.type = 'text/javascript'
+                  dsq.async = true
+                  dsq.id = this.DISCUSS_SCRIPT_ID
+                  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js'
+                  var target = (
+                    document.getElementsByTagName('head')[0] ||
+                    document.getElementsByTagName('body')[0]
+                  )
+                  target.appendChild(dsq)
                 }
               },
 
@@ -639,7 +640,7 @@
                         this.renderAboutMePage()
                       }
                       if (/^\/post\//.test(route)) {
-                          this.renderDisqus(route)
+                        this.renderDisqus(route)
                       }
                       this.skippedFirstRender = true
                       return false
