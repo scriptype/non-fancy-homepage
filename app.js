@@ -208,9 +208,6 @@ var App = {
       this.renderDisqus(route)
     }
 
-    // Inform counter
-    SayiClient.count()
-
     // Handle tumblr iframe
     var tumblrIframe = Utils.getTumblrIframe()
     if (!tumblrIframe) {
