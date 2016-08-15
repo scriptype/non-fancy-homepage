@@ -96,6 +96,10 @@ p {
     padding: 2em 3em 1em;
 }
 
+.main-article a img {
+    border: 2px;
+}
+
 .main-article img {
     width: 100%;
     height: auto;
