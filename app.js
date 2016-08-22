@@ -53,6 +53,7 @@ function RouterModule() {
       'search/*path': 'search',
       'post/*path': 'post',
       'page/:number': 'page',
+      'ask': 'ask',
       '*notfound': 'notFound'
     },
 
@@ -94,6 +95,10 @@ function RouterModule() {
 
     page: function(pageNumber) {
       this._onRoute('/page/' + pageNumber)
+    },
+
+    ask: function() {
+      this._onRoute('/ask')
     }
   })
 }
