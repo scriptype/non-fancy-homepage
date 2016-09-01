@@ -107,8 +107,19 @@ p {
 }
 
 .main-article .notes img,
-.main-article .following img {
+.main-article .following img,
+.main-article .enjoyed img {
     width: auto;
+}
+
+.enjoyed li {
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+.enjoyed li a {
+    display: inline-block;
+    width: 250px;
 }
 
 .main-article [id*=tumblr_video_container] {
@@ -242,7 +253,7 @@ p {
         padding-top: 3rem;
     }
 
-    .following {
+    .following, .enjoyed {
         column-count: 2;
         column-gap: 75px;
     }
