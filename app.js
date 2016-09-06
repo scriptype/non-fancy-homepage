@@ -1,10 +1,22 @@
+function safeTitle(fn) {
+  return fn.toString()
+    .replace(/\n/g, '')
+    .replace('function', '')
+    .replace('()', '')
+    .replace('{', '')
+    .replace(/\/\*/, '')
+    .replace(/\*\//, '')
+    .replace(/\}$/, '')
+    .trim()
+}
+
 function FollowingBlogsDataModule() {
   // {block:Following}
   return [
     // {block:Followed}
     {
       avatar: '{FollowedPortraitURL-16}',
-      title: '{FollowedTitle}',
+      title: safeTitle(function(){/*{FollowedTitle}*/}),
       name: '{FollowedName}',
       url: '{FollowedURL}'
     },
