@@ -3,10 +3,8 @@ function safeTitle(fn) {
     .replace(/\n/g, '')
     .replace('function', '')
     .replace('()', '')
-    .replace('{', '')
-    .replace(/\/\*/, '')
-    .replace(/\*\//, '')
-    .replace(/\}$/, '')
+    .replace(/{\/\*/, '')
+    .replace(/\*\/\}$/, '')
     .trim()
 }
 
