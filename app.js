@@ -247,7 +247,7 @@ var App = {
       return part
     }).join('&')].join('?')
     if (tumblrIframe.src !== newSrc) {
-      tumblrIframe.src = newSrc
+      tumblrIframe.contentWindow.location.replace(newSrc)
     }
   },
 
