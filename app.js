@@ -163,7 +163,7 @@ var App = {
   bindLinksToRouter: function(nodes) {
     ;[].slice.call(nodes).forEach(function(node) {
       node.addEventListener('click', function(event) {
-        if (!event.metaKey && !event.altKey && !event.ctrlKey && !event.shiftKey) {
+        if (!event.metaKey && !event.altKey && !event.ctrlKey && !event.shiftKey && event.which !== 2) {
           event.preventDefault()
           var origin = document.location.origin
           var route = node.href.replace(origin + '/', '')
