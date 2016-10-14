@@ -339,13 +339,23 @@
 
         <script type="text/javascript">
 
+            function safeTitle(fn) {
+              return fn.toString()
+                .replace(/\n/g, '')
+                .replace('function', '')
+                .replace('()', '')
+                .replace(/{\/\*/, '')
+                .replace(/\*\/\}$/, '')
+                .trim()
+            }
+
             function FollowingBlogsDataModule() {
               // {block:Following}
               return [
                 // {block:Followed}
                 {
                   avatar: '{FollowedPortraitURL-16}',
-                  title: '{FollowedTitle}',
+                  title: safeTitle(function(){/*{FollowedTitle}*/}),
                   name: '{FollowedName}',
                   url: '{FollowedURL}'
                 },
@@ -494,7 +504,7 @@
               bindLinksToRouter: function(nodes) {
                 ;[].slice.call(nodes).forEach(function(node) {
                   node.addEventListener('click', function(event) {
-                    if (!event.metaKey && !event.altKey && !event.ctrlKey && !event.shiftKey) {
+                    if (!event.metaKey && !event.altKey && !event.ctrlKey && !event.shiftKey && event.which !== 2) {
                       event.preventDefault()
                       var origin = document.location.origin
                       var route = node.href.replace(origin + '/', '')
@@ -578,7 +588,7 @@
                   return part
                 }).join('&')].join('?')
                 if (tumblrIframe.src !== newSrc) {
-                  tumblrIframe.src = newSrc
+                  tumblrIframe.contentWindow.location.replace(newSrc)
                 }
               },
 
