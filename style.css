@@ -112,10 +112,6 @@ p {
     width: auto;
 }
 
-.enjoyed li {
-    margin-bottom: 2em;
-}
-
 .enjoyed li a {
     display: inline-block;
     width: 250px;
