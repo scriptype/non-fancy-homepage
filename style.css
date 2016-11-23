@@ -50,6 +50,12 @@ p {
     float: right;
 }
 
+@media (max-width: 639px) {
+    .search-input {
+        width: 80px;
+    }
+}
+
 .main-pagination {
     text-align: center;
 }
