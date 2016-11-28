@@ -111,8 +111,10 @@ p {
 }
 
 .photo-container img,
-.video-container img {
-    width: 100%;
+.video-container img,
+.text-container img,
+.link-thumbnail-container img {
+    max-width: 100%;
     height: auto;
 }
 
