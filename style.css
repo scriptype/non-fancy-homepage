@@ -107,15 +107,13 @@ p {
 }
 
 .main-article img {
-    width: 100%;
-    height: auto;
     vertical-align: middle;
 }
 
-.main-article .notes img,
-.main-article .following img,
-.main-article .enjoyed img {
-    width: auto;
+.photo-container img,
+.video-container img {
+    width: 100%;
+    height: auto;
 }
 
 .enjoyed li a {
