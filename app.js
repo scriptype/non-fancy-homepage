@@ -305,20 +305,58 @@ var App = {
     var Router = RouterModule()
 
     this.router = new Router({
+
+      // Predicate fn to decide if router should work
       renderRule: function (route) {
         if (this.skippedFirstRender) {
+          // This isn't the first opening; run router
           return true
 
         } else {
+
+          // First time page opening in about-me
           if (/^\/about-me$/.test(route)) {
             this.renderAboutMePage()
           }
+
+          // First time page opening in post
           if (/^\/post\//.test(route)) {
             this.renderDisqus(route)
           }
+
+          // Detect the replacement of Tumblr iframe, and when it becomes stable do stuff
+          var intervalLimit = 15
+          var tumblrIframe = Utils.getTumblrIframe()
+
+          var interval = setInterval(function() {
+            var newTumblrIframe = Utils.getTumblrIframe()
+            /*
+             * Tumblr iframe is replaced with another in the first render,
+             * after some unknown time, at least for the time of this implementation.
+             *
+             * So check if it becomes different than the first one, periodically, and
+             * do any operations then.
+             *
+             * If the iframe stays the same in the future, this code
+             * will still do the operations with the last found iframe.
+             */
+            if (tumblrIframe !== newTumblrIframe || intervalLimit-- < 0) {
+              clearInterval(interval)
+
+              // Iframe is ready
+              requestAnimationFrame(function() {
+                newTumblrIframe.title = 'Tumblr controls'
+              })
+            }
+          }, 500)
+
+          // Will continue with router after the first render logic above
           this.skippedFirstRender = true
+
+          // Don't run router for this time
           return false
         }
+
       }.bind(this),
 
       onRoute: this.onRoute.bind(this)
