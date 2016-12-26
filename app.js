@@ -227,27 +227,29 @@ var App = {
     var tumblrIframe = Utils.getTumblrIframe()
     if (!tumblrIframe) {
       console.info('no iframe')
-      return
-    }
-    var iframeSrc = decodeURIComponent(tumblrIframe.src)
-    var iframeSrcRoot = iframeSrc.split('?')[0]
-    var iframeSrcQuery = iframeSrc.split('?')[1]
-    var iframeQueryParts = iframeSrcQuery.split('&')
-    var newSrc = [iframeSrcRoot, iframeQueryParts.map(function(part) {
-      var pid = ''
-      if (/src=/.test(part)) {
-        if (/post/.test(route)) {
-          pid = 'pid=' + Utils.getPostID()
+
+    } else {
+      var iframeSrc = decodeURIComponent(tumblrIframe.src)
+      var iframeSrcRoot = iframeSrc.split('?')[0]
+      var iframeSrcQuery = iframeSrc.split('?')[1]
+      var iframeQueryParts = iframeSrcQuery.split('&')
+      var newSrc = [iframeSrcRoot, iframeQueryParts.map(function(part) {
+        var pid = ''
+        if (/src=/.test(part)) {
+          if (/post/.test(route)) {
+            pid = 'pid=' + Utils.getPostID()
+          }
+          return pid + '&' + 'src=' + encodeURIComponent(document.location.origin + route)
         }
-        return pid + '&' + 'src=' + encodeURIComponent(document.location.origin + route)
+        if (/pid=/.test(part) && !/^\/post/.test(route)) {
+          return ''
+        }
+        return part
+      }).join('&')].join('?')
+
+      if (tumblrIframe.src !== newSrc) {
+        tumblrIframe.contentWindow.location.replace(newSrc)
       }
-      if (/pid=/.test(part) && !/^\/post/.test(route)) {
-        return ''
-      }
-      return part
-    }).join('&')].join('?')
-    if (tumblrIframe.src !== newSrc) {
-      tumblrIframe.contentWindow.location.replace(newSrc)
     }
   },
 
