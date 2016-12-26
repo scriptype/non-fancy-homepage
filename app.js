@@ -250,6 +250,8 @@ var App = {
       if (tumblrIframe.src !== newSrc) {
         tumblrIframe.contentWindow.location.replace(newSrc)
       }
+
+      tumblrIframe.title = 'Tumblr controls'
     }
   },
 
