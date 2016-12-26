@@ -10,7 +10,7 @@ live: http://enes.in
 
 This repository contains the pure [CSS](https://github.com/scriptype/non-fancy-homepage/blob/master/style.css) and the pure [JS](https://github.com/scriptype/non-fancy-homepage/blob/master/app.js) source code that makes up my personal blog. I've also created a [backup file](https://github.com/scriptype/non-fancy-homepage/blob/master/tumblr_backup.html) that reflects the most recent state of the site's template code.
 
-It's designed in a way it looks totaly undesigned and ugly, and I think it's still better than having a modern-looking design. [More on that](http://brutalistwebsites.com/enes.in/)
+It's designed in a way that it looks totaly undesigned and ugly, and I think it's still better than having a modern-looking design. [See brutalistwebsites Q/A about that.](http://brutalistwebsites.com/enes.in/)
 
 Besides the simplicity of the design, I've tried to enhance the user-experience as much as possible. After the first render that happens on the server-side, a small piece of Javascript on the client takes control of everything to minimize further render times, provide route transitions etc. And this application logic will simply delegate itself to the good old server rendering on old machines. Mobile-friendliness, accessibility and progressive-enhancement have more value than a modern design in this theme.
 
