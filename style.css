@@ -73,6 +73,15 @@ p {
     display: none;
 }
 
+.pagination-item--placeholder {
+    cursor: default;
+    transition: all .3s;
+}
+
+.pagination-item--placeholder:hover {
+    filter: blur(2px);
+}
+
 .main-contents {
     display: flex;
     flex-direction: column;
