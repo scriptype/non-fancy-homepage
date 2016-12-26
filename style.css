@@ -7,7 +7,7 @@ body {
     padding: 0;
     font: 400 80%/1.5 helvetica, arial, sans-serif;
     color: #333;
-    background: #eee;
+    background: #f0f0f0;
 }
 
 p {
@@ -23,7 +23,7 @@ p {
 }
 
 .dimmed {
-    color: #999;
+    color: #505050;
 }
 
 .main-header {
