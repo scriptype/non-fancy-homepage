@@ -258,7 +258,7 @@ p {
 
     .main-article--index.main-article--video,
     .main-article--index.main-article--photo {
-        align-self: flex-end;
+        align-self: flex-start;
     }
 
     .main-article h2,
