@@ -75,7 +75,7 @@ p {
 
 .pagination-item--placeholder {
     cursor: default;
-    transition: all .3s;
+    transition: all .2s;
 }
 
 .pagination-item--placeholder:hover {
