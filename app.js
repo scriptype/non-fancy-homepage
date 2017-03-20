@@ -1,11 +1,7 @@
 function safeTitle(fn) {
   return fn.toString()
-    .replace(/\n/g, '')
-    .replace('function', '')
-    .replace('()', '')
-    .replace(/{\/\*/, '')
-    .replace(/\*\/\}$/, '')
-    .trim()
+    .replace(/\n/g, ' ')
+    .match(/\/\*(.+)\*\//)[1]
 }
 
 function FollowingBlogsDataModule() {
