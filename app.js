@@ -1,7 +1,10 @@
 function safeTitle(fn) {
-  return fn.toString()
+  var match = fn
+    .toString()
     .replace(/\n/g, ' ')
-    .match(/\/\*(.+)\*\//)[1]
+    .match(/\/\*(.+)\*\//)
+
+  return match ? match[1] : ''
 }
 
 function FollowingBlogsDataModule() {
