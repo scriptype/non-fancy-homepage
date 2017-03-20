@@ -93,6 +93,10 @@ p {
     flex-direction: column;
 }
 
+.main-article {
+    word-break: break-word;
+}
+
 .main-article p,
 .main-footer p {
     margin: 0;
@@ -223,7 +227,6 @@ p {
 
     .main-article {
         margin-top: 2rem;
-        word-break: break-word;
     }
 
     .main-article h2,
