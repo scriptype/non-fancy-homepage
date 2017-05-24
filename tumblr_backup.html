@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>{Title}{block:PermalinkPage}{block:PostSummary} — {PostSummary}{/block:PostSummary}{/block:PermalinkPage}</title>
+        <title>{Title}{block:PermalinkPage}{block:PostSummary} - {PostSummary}{/block:PostSummary}{/block:PermalinkPage}</title>
         {block:Description}
         <meta name="description" content="{MetaDescription}">
         {/block:Description}
@@ -21,7 +21,7 @@
 
         <div class="container">
 
-            <header class="main-header">
+            <header class="main-header" role="banner">
                 <iframe title="Follow me on Tumblr"
                         class="btn social-badge"
                         frameborder="0"
@@ -330,7 +330,7 @@
             </section>
 
 
-            <footer class="main-footer">
+            <footer class="main-footer" role="contentinfo">
                 <h3 class="main-footer__version">Enes.in blog v.2 - Mon, Aug 22, 2016</h3>
                 <p>
                     This blog is an
@@ -346,14 +346,15 @@
         <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.3.3/backbone-min.js"></script>
 
         <script type="text/javascript">
+
             function safeTitle(fn) {
-              return fn.toString()
-                .replace(/\n/g, '')
-                .replace('function', '')
-                .replace('()', '')
-                .replace(/{\/\*/, '')
-                .replace(/\*\/\}$/, '')
-                .trim()
+              var match = fn
+                .toString()
+                .replace(/
+    /g, ' ')
+                .match(/\/\*(.+)\*\//)
+
+              return match ? match[1] : ''
             }
 
             function FollowingBlogsDataModule() {
@@ -731,7 +732,6 @@
             }
 
             window.addEventListener('DOMContentLoaded', App.init.bind(App))
-
         </script>
 
     </body>
