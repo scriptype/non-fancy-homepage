@@ -147,11 +147,6 @@ code {
     height: auto;
 }
 
-.enjoyed li a {
-    display: inline-block;
-    width: 250px;
-}
-
 .main-article [id*=tumblr_video_container] {
     width: 100% !important;
     height: auto !important;
