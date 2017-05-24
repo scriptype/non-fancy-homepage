@@ -297,6 +297,10 @@ p {
     .main-article--permalink {
         width: 100%;
     }
+
+    .main-article--permalink.main-article--text {
+        font-size: 1.35em;
+    }
 }
 
 @keyframes fade-in {
