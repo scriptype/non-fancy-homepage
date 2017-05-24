@@ -14,6 +14,13 @@ p {
     line-height: 1.6;
 }
 
+code {
+    padding: 4px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background: #fff;
+}
+
 .hidden {
     display: none;
 }
