@@ -21,6 +21,10 @@ code {
     background: #fff;
 }
 
+.gist {
+    margin: 2.75rem 0;
+}
+
 .hidden {
     display: none;
 }
@@ -171,7 +175,7 @@ code {
 }
 
 .main-article--permalink p {
-    margin-bottom: 1.25rem;
+    margin-bottom: 1.75rem;
 }
 
 .main-article--permalink pre {
