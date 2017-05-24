@@ -132,7 +132,7 @@ var Utils = {
     }, 300)
   },
 
-  getTumblrIframe() {
+  getTumblrIframe: function() {
     return (
       document.getElementsByName('desktop-logged-in-controls')[0] ||
       document.getElementsByClassName('tmblr-iframe')[0] ||
@@ -140,7 +140,33 @@ var Utils = {
     )
   },
 
-  getPostID() {
+  getChangedTumblrIframe: function(callback) {
+    var tumblrIframe = Utils.getTumblrIframe()
+
+    // Detect the replacement of Tumblr iframe, and when it becomes stable do stuff
+    var intervalLimit = 15
+    var interval = setInterval(function() {
+      var newTumblrIframe = Utils.getTumblrIframe()
+      /*
+       * Tumblr iframe is being replaced with another in the first render for an
+       * unknown reason, after some unknown time, at least for the time of writing
+       * this.
+       *
+       * So check periodically, if it becomes different than the first one, and
+       * do any operations then.
+       *
+       * If the iframe stays the same in the future, this code
+       * will still do the operations with the last found iframe.
+       */
+      if (tumblrIframe !== newTumblrIframe || intervalLimit-- < 0) {
+        // Iframe is ready
+        clearInterval(interval)
+        requestAnimationFrame(callback.bind(null, newTumblrIframe))
+      }
+    }, 500)
+  },
+
+  getPostID: function() {
     return document.getElementById('post-id').value
   }
 }
@@ -222,35 +248,12 @@ var App = {
       this.renderDisqus(route)
     }
 
-    // Handle tumblr iframe
+    // Tumblr iframe
     var tumblrIframe = Utils.getTumblrIframe()
-    if (!tumblrIframe) {
-      console.info('no iframe')
-
+    if (tumblrIframe) {
+      this.renderTumblrIframe(tumblrIframe, route)
     } else {
-      var iframeSrc = decodeURIComponent(tumblrIframe.src)
-      var iframeSrcRoot = iframeSrc.split('?')[0]
-      var iframeSrcQuery = iframeSrc.split('?')[1]
-      var iframeQueryParts = iframeSrcQuery.split('&')
-      var newSrc = [iframeSrcRoot, iframeQueryParts.map(function(part) {
-        var pid = ''
-        if (/src=/.test(part)) {
-          if (/post/.test(route)) {
-            pid = 'pid=' + Utils.getPostID()
-          }
-          return pid + '&' + 'src=' + encodeURIComponent(document.location.origin + route)
-        }
-        if (/pid=/.test(part) && !/^\/post/.test(route)) {
-          return ''
-        }
-        return part
-      }).join('&')].join('?')
-
-      if (tumblrIframe.src !== newSrc) {
-        tumblrIframe.contentWindow.location.replace(newSrc)
-      }
-
-      tumblrIframe.title = 'Tumblr controls'
+      console.info('no tumblr iframe')
     }
   },
 
@@ -287,6 +290,30 @@ var App = {
     }
   },
 
+  renderTumblrIframe: function(tumblrIframe, route) {
+    var iframeSrc = decodeURIComponent(tumblrIframe.src)
+    var iframeSrcRoot = iframeSrc.split('?')[0]
+    var iframeSrcQuery = iframeSrc.split('?')[1]
+    var iframeQueryParts = iframeSrcQuery.split('&')
+    var newSrc = [iframeSrcRoot, iframeQueryParts.map(function(part) {
+      var pid = ''
+      if (/src=/.test(part)) {
+        if (/post/.test(route)) {
+          pid = 'pid=' + Utils.getPostID()
+        }
+        return pid + '&src=' + encodeURIComponent(document.location.origin + route)
+      }
+      if (/pid=/.test(part) && !/^\/post/.test(route)) {
+        return ''
+      }
+      return part
+    }).join('&')].join('?')
+
+    if (tumblrIframe.src !== newSrc) {
+      tumblrIframe.contentWindow.location.replace(newSrc)
+    }
+  },
+
   bindBottomPaginationLinksClickHandlers() {
     ;[].slice.call(document.querySelectorAll(this.BOTTOM_PAGINATION_LINKS))
       .forEach(function(el) {
@@ -307,9 +334,10 @@ var App = {
 
       // Predicate fn to decide if router should work
       renderRule: function (route) {
+        // Should run router if first render already has been done.
         if (this.skippedFirstRender) {
 
-          // If "nort" is at the end of url, don't route
+          // If "nort" (no route) is at the end of url, hard redirect to that url
           if (/nort$/.test(route)) {
             document.location.href = route
           }
@@ -317,6 +345,7 @@ var App = {
           // This isn't the first opening; run router
           return true
 
+        // Route-dependent initialization logic
         } else {
 
           // First time page opening in about-me
@@ -329,39 +358,12 @@ var App = {
             this.renderDisqus(route)
           }
 
-          // Detect the replacement of Tumblr iframe, and when it becomes stable do stuff
-          var intervalLimit = 15
-          var tumblrIframe = Utils.getTumblrIframe()
-
-          var interval = setInterval(function() {
-            var newTumblrIframe = Utils.getTumblrIframe()
-            /*
-             * Tumblr iframe is replaced with another in the first render,
-             * after some unknown time, at least for the time of this implementation.
-             *
-             * So check if it becomes different than the first one, periodically, and
-             * do any operations then.
-             *
-             * If the iframe stays the same in the future, this code
-             * will still do the operations with the last found iframe.
-             */
-            if (tumblrIframe !== newTumblrIframe || intervalLimit-- < 0) {
-              clearInterval(interval)
-
-              // Iframe is ready
-              requestAnimationFrame(function() {
-                newTumblrIframe.title = 'Tumblr controls'
-              })
-            }
-          }, 500)
-
           // Will continue with router after the first render logic above
           this.skippedFirstRender = true
 
           // Don't run router for this time
           return false
         }
-
       }.bind(this),
 
       onRoute: this.onRoute.bind(this)
@@ -384,6 +386,12 @@ var App = {
     var debouncedSearch = _.debounce(this.onSearch.bind(this), 300)
     searchInput.addEventListener('keydown', debouncedSearch)
     searchForm.addEventListener('submit', function(event) { event.preventDefault() })
+
+    // Detect if tumblrIframe is being changed and handle it
+    Utils.getChangedTumblrIframe(function(newTumblrIframe) {
+      // Add title to the iframe, for accessibility.
+      newTumblrIframe.title = 'Tumblr controls'
+    })
   }
 }
 
