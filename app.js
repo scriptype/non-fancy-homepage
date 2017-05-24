@@ -308,6 +308,12 @@ var App = {
       // Predicate fn to decide if router should work
       renderRule: function (route) {
         if (this.skippedFirstRender) {
+
+          // If "nort" is at the end of url, don't route
+          if (/nort$/.test(route)) {
+            document.location.href = route
+          }
+
           // This isn't the first opening; run router
           return true
 
