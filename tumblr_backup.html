@@ -350,8 +350,7 @@
             function safeTitle(fn) {
               var match = fn
                 .toString()
-                .replace(/
-    /g, ' ')
+                .replace(/\n/g, ' ')
                 .match(/\/\*(.+)\*\//)
 
               return match ? match[1] : ''
