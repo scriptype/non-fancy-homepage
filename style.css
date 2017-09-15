@@ -99,9 +99,6 @@ code {
 }
 
 .main-contents {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
     padding-bottom: 2.4rem;
 }
 
@@ -110,7 +107,11 @@ code {
 }
 
 .main-article {
-    word-break: break-word;
+    -webkit-column-break-inside: avoid;
+       -moz-column-break-inside:avoid;
+       -moz-page-break-inside:avoid;
+            page-break-inside: avoid;
+    break-inside: avoid-column;
 }
 
 .main-article p,
@@ -145,6 +146,10 @@ code {
 .link-thumbnail-container img {
     max-width: 100%;
     height: auto;
+}
+
+.text-container {
+    word-break: break-word;
 }
 
 .main-article [id*=tumblr_video_container] {
@@ -232,12 +237,8 @@ code {
         text-align: left;
     }
 
-    .main-contents {
-        margin-top: -1rem;
-    }
-
     .main-article {
-        margin-top: 2rem;
+        padding: 1rem 0;
     }
 
     .main-article h2,
@@ -254,7 +255,8 @@ code {
     }
 
     .main-contents {
-        margin-top: -1.1rem;
+        column-count: 2;
+        column-gap: 80px;
     }
 
     .main-contents--index {
@@ -264,7 +266,7 @@ code {
 
     .main-article {
         width: 200px;
-        margin-top: 2.12rem;
+        padding: 1.02rem 0;
     }
 
     .main-article--permalink {
@@ -299,6 +301,10 @@ code {
 @media (min-width: 640px) {
     .container {
         width: 640px;
+    }
+
+    .main-contents {
+        column-gap: 40px;
     }
 
     .main-article {
