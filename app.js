@@ -48,11 +48,44 @@ function FollowingBlogsModule() {
     '</ol>'
 }
 
+function fetchPage(url) {
+  return fetch(url).then(function(result) {
+    return result.text()
+  })
+}
+
+function RouteCacheStoreModule() {
+  var Store = {}
+
+  function cache(route) {
+    route = route
+      .replace(/^\//, '')
+      .replace(/\/$/, '')
+
+    if (Store[route]) {
+      console.log('found cache for:', route)
+      return Promise.resolve(Store[route])
+    }
+
+    console.log('cache not found, fetching:', route)
+
+    return fetchPage('/' + route).then(function(text) {
+      Store[route] = text
+      return text
+    })
+  }
+
+  return {
+    cache: cache
+  }
+}
+
 function RouterModule() {
   return Backbone.Router.extend({
     initialize: function (options) {
       this.renderRule = options.renderRule
       this.onRoute = options.onRoute
+      this.routeStore = options.routeStore
     },
 
     routes: {
@@ -68,13 +101,11 @@ function RouterModule() {
 
     _onRoute: function(route) {
       if (this.renderRule(route)) {
-        fetch(route)
-          .then(function(result) { return result.text() })
-          .then(function(text) {
-            if (typeof this.onRoute === 'function') {
-              this.onRoute(text, route)
-            }
-          }.bind(this))
+        this.routeStore.cache(route).then(function(text) {
+          if (typeof this.onRoute === 'function') {
+            this.onRoute(text, route)
+          }
+        }.bind(this))
       }
     },
 
@@ -240,13 +271,16 @@ var App = {
       this.renderAboutMePage()
     }
 
-    // Update page title
-    document.title = fragment.querySelector('title').innerText
-
     // Disqus
     if (/^\/post\//.test(route)) {
       this.renderDisqus(route)
     }
+
+    // Cache related pages
+    this.cacheRoutes(route)
+
+    // Update page title
+    document.title = fragment.querySelector('title').innerText
 
     // Tumblr iframe
     var tumblrIframe = Utils.getTumblrIframe()
@@ -254,6 +288,21 @@ var App = {
       this.renderTumblrIframe(tumblrIframe, route)
     } else {
       console.info('no tumblr iframe')
+    }
+  },
+
+  cacheRoutes(route) {
+    this.RouteCacheStore.cache(route)
+
+    if (/page\/\d+(\/|)$/.test(route)) {
+      var currentPage = parseInt(route.match(/page\/(\d+)(\/|)$/)[1], 10) || 0
+      this.RouteCacheStore.cache(route.replace(/\d+(\/|)$/, '') + (currentPage + 1))
+      if (currentPage > 1) {
+        this.RouteCacheStore.cache(route.replace(/\d+(\/|)$/, '') + (currentPage - 1))
+      }
+
+    } else if (route == '/' || /^\/search/.test(route) || /^\/tagged/.test(route)) {
+      this.RouteCacheStore.cache(route.replace(/\/$/, '') + '/page/2')
     }
   },
 
@@ -329,6 +378,7 @@ var App = {
     }
 
     var Router = RouterModule()
+    this.RouteCacheStore = RouteCacheStoreModule()
 
     this.router = new Router({
 
@@ -361,12 +411,17 @@ var App = {
           // Will continue with router after the first render logic above
           this.skippedFirstRender = true
 
+          // Cache related pages
+          this.cacheRoutes(route)
+
           // Don't run router for this time
           return false
         }
       }.bind(this),
 
-      onRoute: this.onRoute.bind(this)
+      onRoute: this.onRoute.bind(this),
+
+      routeStore: this.RouteCacheStore
     })
 
     this.router.on('route', function(route) {
@@ -389,8 +444,11 @@ var App = {
 
     // Detect if tumblrIframe is being changed and handle it
     Utils.getChangedTumblrIframe(function(newTumblrIframe) {
-      // Add title to the iframe, for accessibility.
-      newTumblrIframe.title = 'Tumblr controls'
+      // Only if a tumblrIframe is found
+      if (newTumblrIframe) {
+        // Add title to the iframe, for accessibility.
+        newTumblrIframe.title = 'Tumblr controls'
+      }
     })
   }
 }
