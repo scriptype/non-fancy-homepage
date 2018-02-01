@@ -1,53 +1,3 @@
-function safeTitle(fn) {
-  var match = fn
-    .toString()
-    .replace(/\n/g, ' ')
-    .match(/\/\*(.+)\*\//)
-
-  return match ? match[1] : ''
-}
-
-function FollowingBlogsDataModule() {
-  // {block:Following}
-  return [
-    // {block:Followed}
-    {
-      avatar: '{FollowedPortraitURL-16}',
-      title: safeTitle(function(){/*{FollowedTitle}*/}),
-      name: '{FollowedName}',
-      url: '{FollowedURL}'
-    },
-    // {block:Followed}
-  ]
-  // {/block:Following}
-  return []
-}
-
-function FollowingBlogsModule() {
-  var followingData = FollowingBlogsDataModule()
-  var sortedFollowingData = followingData.sort(function(p, n) {
-    var a = (p.title[0] || '').toUpperCase()
-    var b = (n.title[0] || '').toUpperCase()
-    return a > b ? 1 : (b > a ? -1 : 0)
-  })
-  return ''                                               +
-    '<h3>Blogs I follow:</h3>'                            +
-    '<ol class="following">'                              +
-      sortedFollowingData.map(function(fw) {
-        return ''                                         +
-          '<li>'                                          +
-            '<a href="' + fw.url  + '" target="_blank">'  +
-              '<img src="' + fw.avatar + '" '             +
-                   'alt="' + fw.name + '" />'             +
-            '</a> '                                       +
-            '<a href="' + fw.url  + '" target="_blank">'  +
-              fw.title                                    +
-            '</a>'                                        +
-          '</li>'
-      }).join('')                                         +
-    '</ol>'
-}
-
 function fetchPage(url) {
   return fetch(url).then(function(result) {
     return result.text()
@@ -204,7 +154,6 @@ var Utils = {
 
 var App = {
   CONTENT: '.main-contents',
-  ABOUT_ME_CONTENT: '.main-contents .main-article',
   TOP_PAGINATION: '.main-pagination--top',
   BOTTOM_PAGINATION: '.main-pagination--bottom',
   PAGINATION_LINKS: '.main-pagination a',
@@ -266,11 +215,6 @@ var App = {
       document.getElementById('q').value = ''
     }
 
-    // Perform some dynamic rendering if it's /about-me
-    if (/^\/about-me$/.test(route)) {
-      this.renderAboutMePage()
-    }
-
     // Disqus
     if (/^\/post\//.test(route)) {
       this.renderDisqus(route)
@@ -304,12 +248,6 @@ var App = {
     } else if (route == '/' || /^\/search/.test(route) || /^\/tagged/.test(route)) {
       this.RouteCacheStore.cache(route.replace(/\/$/, '') + '/page/2')
     }
-  },
-
-  renderAboutMePage() {
-    var aboutMeContent = document.querySelector(this.ABOUT_ME_CONTENT)
-    var followingBlogs = FollowingBlogsModule()
-    aboutMeContent.insertAdjacentHTML('beforeend', followingBlogs)
   },
 
   renderDisqus(route) {
@@ -397,11 +335,6 @@ var App = {
 
         // Route-dependent initialization logic
         } else {
-
-          // First time page opening in about-me
-          if (/^\/about-me$/.test(route)) {
-            this.renderAboutMePage()
-          }
 
           // First time page opening in post
           if (/^\/post\//.test(route)) {
