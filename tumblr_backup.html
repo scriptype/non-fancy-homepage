@@ -347,54 +347,36 @@
 
         <script type="text/javascript">
 
-            function safeTitle(fn) {
-              var match = fn
-                .toString()
-                .replace(/\n/g, ' ')
-                .match(/\/\*(.+)\*\//)
-
-              return match ? match[1] : ''
-            }
-
-            function FollowingBlogsDataModule() {
-              // {block:Following}
-              return [
-                // {block:Followed}
-                {
-                  avatar: '{FollowedPortraitURL-16}',
-                  title: safeTitle(function(){/*{FollowedTitle}*/}),
-                  name: '{FollowedName}',
-                  url: '{FollowedURL}'
-                },
-                // {block:Followed}
-              ]
-              // {/block:Following}
-              return []
-            }
-
-            function FollowingBlogsModule() {
-              var followingData = FollowingBlogsDataModule()
-              var sortedFollowingData = followingData.sort(function(p, n) {
-                var a = (p.title[0] || '').toUpperCase()
-                var b = (n.title[0] || '').toUpperCase()
-                return a > b ? 1 : (b > a ? -1 : 0)
+            function fetchPage(url) {
+              return fetch(url).then(function(result) {
+                return result.text()
               })
-              return ''                                               +
-                '<h3>Blogs I follow:</h3>'                            +
-                '<ol class="following">'                              +
-                  sortedFollowingData.map(function(fw) {
-                    return ''                                         +
-                      '<li>'                                          +
-                        '<a href="' + fw.url  + '" target="_blank">'  +
-                          '<img src="' + fw.avatar + '" '             +
-                               'alt="' + fw.name + '" />'             +
-                        '</a> '                                       +
-                        '<a href="' + fw.url  + '" target="_blank">'  +
-                          fw.title                                    +
-                        '</a>'                                        +
-                      '</li>'
-                  }).join('')                                         +
-                '</ol>'
+            }
+
+            function RouteCacheStoreModule() {
+              var Store = {}
+
+              function cache(route) {
+                route = route
+                  .replace(/^\//, '')
+                  .replace(/\/$/, '')
+
+                if (Store[route]) {
+                  console.log('found cache for:', route)
+                  return Promise.resolve(Store[route])
+                }
+
+                console.log('cache not found, fetching:', route)
+
+                return fetchPage('/' + route).then(function(text) {
+                  Store[route] = text
+                  return text
+                })
+              }
+
+              return {
+                cache: cache
+              }
             }
 
             function RouterModule() {
@@ -402,6 +384,7 @@
                 initialize: function (options) {
                   this.renderRule = options.renderRule
                   this.onRoute = options.onRoute
+                  this.routeStore = options.routeStore
                 },
 
                 routes: {
@@ -417,13 +400,11 @@
 
                 _onRoute: function(route) {
                   if (this.renderRule(route)) {
-                    fetch(route)
-                      .then(function(result) { return result.text() })
-                      .then(function(text) {
-                        if (typeof this.onRoute === 'function') {
-                          this.onRoute(text, route)
-                        }
-                      }.bind(this))
+                    this.routeStore.cache(route).then(function(text) {
+                      if (typeof this.onRoute === 'function') {
+                        this.onRoute(text, route)
+                      }
+                    }.bind(this))
                   }
                 },
 
@@ -481,7 +462,7 @@
                 }, 300)
               },
 
-              getTumblrIframe() {
+              getTumblrIframe: function() {
                 return (
                   document.getElementsByName('desktop-logged-in-controls')[0] ||
                   document.getElementsByClassName('tmblr-iframe')[0] ||
@@ -489,14 +470,39 @@
                 )
               },
 
-              getPostID() {
+              getChangedTumblrIframe: function(callback) {
+                var tumblrIframe = Utils.getTumblrIframe()
+
+                // Detect the replacement of Tumblr iframe, and when it becomes stable do stuff
+                var intervalLimit = 15
+                var interval = setInterval(function() {
+                  var newTumblrIframe = Utils.getTumblrIframe()
+                  /*
+                   * Tumblr iframe is being replaced with another in the first render for an
+                   * unknown reason, after some unknown time, at least for the time of writing
+                   * this.
+                   *
+                   * So check periodically, if it becomes different than the first one, and
+                   * do any operations then.
+                   *
+                   * If the iframe stays the same in the future, this code
+                   * will still do the operations with the last found iframe.
+                   */
+                  if (tumblrIframe !== newTumblrIframe || intervalLimit-- < 0) {
+                    // Iframe is ready
+                    clearInterval(interval)
+                    requestAnimationFrame(callback.bind(null, newTumblrIframe))
+                  }
+                }, 500)
+              },
+
+              getPostID: function() {
                 return document.getElementById('post-id').value
               }
             }
 
             var App = {
               CONTENT: '.main-contents',
-              ABOUT_ME_CONTENT: '.main-contents .main-article',
               TOP_PAGINATION: '.main-pagination--top',
               BOTTOM_PAGINATION: '.main-pagination--bottom',
               PAGINATION_LINKS: '.main-pagination a',
@@ -558,55 +564,39 @@
                   document.getElementById('q').value = ''
                 }
 
-                // Perform some dynamic rendering if it's /about-me
-                if (/^\/about-me$/.test(route)) {
-                  this.renderAboutMePage()
-                }
-
-                // Update page title
-                document.title = fragment.querySelector('title').innerText
-
                 // Disqus
                 if (/^\/post\//.test(route)) {
                   this.renderDisqus(route)
                 }
 
-                // Handle tumblr iframe
+                // Cache related pages
+                this.cacheRoutes(route)
+
+                // Update page title
+                document.title = fragment.querySelector('title').innerText
+
+                // Tumblr iframe
                 var tumblrIframe = Utils.getTumblrIframe()
-                if (!tumblrIframe) {
-                  console.info('no iframe')
-
+                if (tumblrIframe) {
+                  this.renderTumblrIframe(tumblrIframe, route)
                 } else {
-                  var iframeSrc = decodeURIComponent(tumblrIframe.src)
-                  var iframeSrcRoot = iframeSrc.split('?')[0]
-                  var iframeSrcQuery = iframeSrc.split('?')[1]
-                  var iframeQueryParts = iframeSrcQuery.split('&')
-                  var newSrc = [iframeSrcRoot, iframeQueryParts.map(function(part) {
-                    var pid = ''
-                    if (/src=/.test(part)) {
-                      if (/post/.test(route)) {
-                        pid = 'pid=' + Utils.getPostID()
-                      }
-                      return pid + '&' + 'src=' + encodeURIComponent(document.location.origin + route)
-                    }
-                    if (/pid=/.test(part) && !/^\/post/.test(route)) {
-                      return ''
-                    }
-                    return part
-                  }).join('&')].join('?')
-
-                  if (tumblrIframe.src !== newSrc) {
-                    tumblrIframe.contentWindow.location.replace(newSrc)
-                  }
-
-                  tumblrIframe.title = 'Tumblr controls'
+                  console.info('no tumblr iframe')
                 }
               },
 
-              renderAboutMePage() {
-                var aboutMeContent = document.querySelector(this.ABOUT_ME_CONTENT)
-                var followingBlogs = FollowingBlogsModule()
-                aboutMeContent.insertAdjacentHTML('beforeend', followingBlogs)
+              cacheRoutes(route) {
+                this.RouteCacheStore.cache(route)
+
+                if (/page\/\d+(\/|)$/.test(route)) {
+                  var currentPage = parseInt(route.match(/page\/(\d+)(\/|)$/)[1], 10) || 0
+                  this.RouteCacheStore.cache(route.replace(/\d+(\/|)$/, '') + (currentPage + 1))
+                  if (currentPage > 1) {
+                    this.RouteCacheStore.cache(route.replace(/\d+(\/|)$/, '') + (currentPage - 1))
+                  }
+
+                } else if (route == '/' || /^\/search/.test(route) || /^\/tagged/.test(route)) {
+                  this.RouteCacheStore.cache(route.replace(/\/$/, '') + '/page/2')
+                }
               },
 
               renderDisqus(route) {
@@ -636,6 +626,30 @@
                 }
               },
 
+              renderTumblrIframe: function(tumblrIframe, route) {
+                var iframeSrc = decodeURIComponent(tumblrIframe.src)
+                var iframeSrcRoot = iframeSrc.split('?')[0]
+                var iframeSrcQuery = iframeSrc.split('?')[1]
+                var iframeQueryParts = iframeSrcQuery.split('&')
+                var newSrc = [iframeSrcRoot, iframeQueryParts.map(function(part) {
+                  var pid = ''
+                  if (/src=/.test(part)) {
+                    if (/post/.test(route)) {
+                      pid = 'pid=' + Utils.getPostID()
+                    }
+                    return pid + '&src=' + encodeURIComponent(document.location.origin + route)
+                  }
+                  if (/pid=/.test(part) && !/^\/post/.test(route)) {
+                    return ''
+                  }
+                  return part
+                }).join('&')].join('?')
+
+                if (tumblrIframe.src !== newSrc) {
+                  tumblrIframe.contentWindow.location.replace(newSrc)
+                }
+              },
+
               bindBottomPaginationLinksClickHandlers() {
                 ;[].slice.call(document.querySelectorAll(this.BOTTOM_PAGINATION_LINKS))
                   .forEach(function(el) {
@@ -651,63 +665,45 @@
                 }
 
                 var Router = RouterModule()
+                this.RouteCacheStore = RouteCacheStoreModule()
 
                 this.router = new Router({
 
                   // Predicate fn to decide if router should work
                   renderRule: function (route) {
+                    // Should run router if first render already has been done.
                     if (this.skippedFirstRender) {
+
+                      // If "nort" (no route) is at the end of url, hard redirect to that url
+                      if (/nort$/.test(route)) {
+                        document.location.href = route
+                      }
+
                       // This isn't the first opening; run router
                       return true
 
+                    // Route-dependent initialization logic
                     } else {
-
-                      // First time page opening in about-me
-                      if (/^\/about-me$/.test(route)) {
-                        this.renderAboutMePage()
-                      }
 
                       // First time page opening in post
                       if (/^\/post\//.test(route)) {
                         this.renderDisqus(route)
                       }
 
-                      // Detect the replacement of Tumblr iframe, and when it becomes stable do stuff
-                      var intervalLimit = 15
-                      var tumblrIframe = Utils.getTumblrIframe()
-
-                      var interval = setInterval(function() {
-                        var newTumblrIframe = Utils.getTumblrIframe()
-                        /*
-                         * Tumblr iframe is replaced with another in the first render,
-                         * after some unknown time, at least for the time of this implementation.
-                         *
-                         * So check if it becomes different than the first one, periodically, and
-                         * do any operations then.
-                         *
-                         * If the iframe stays the same in the future, this code
-                         * will still do the operations with the last found iframe.
-                         */
-                        if (tumblrIframe !== newTumblrIframe || intervalLimit-- < 0) {
-                          clearInterval(interval)
-
-                          // Iframe is ready
-                          requestAnimationFrame(function() {
-                            newTumblrIframe.title = 'Tumblr controls'
-                          })
-                        }
-                      }, 500)
-
                       // Will continue with router after the first render logic above
                       this.skippedFirstRender = true
+
+                      // Cache related pages
+                      this.cacheRoutes(route)
 
                       // Don't run router for this time
                       return false
                     }
-
                   }.bind(this),
 
-                  onRoute: this.onRoute.bind(this)
+                  onRoute: this.onRoute.bind(this),
+
+                  routeStore: this.RouteCacheStore
                 })
 
                 this.router.on('route', function(route) {
@@ -727,10 +723,20 @@
                 var debouncedSearch = _.debounce(this.onSearch.bind(this), 300)
                 searchInput.addEventListener('keydown', debouncedSearch)
                 searchForm.addEventListener('submit', function(event) { event.preventDefault() })
+
+                // Detect if tumblrIframe is being changed and handle it
+                Utils.getChangedTumblrIframe(function(newTumblrIframe) {
+                  // Only if a tumblrIframe is found
+                  if (newTumblrIframe) {
+                    // Add title to the iframe, for accessibility.
+                    newTumblrIframe.title = 'Tumblr controls'
+                  }
+                })
               }
             }
 
             window.addEventListener('DOMContentLoaded', App.init.bind(App))
+
         </script>
 
     </body>
