@@ -7,6 +7,13 @@ function fetchPage(url) {
 function RouteCacheStoreModule() {
   var Store = {}
 
+  function prefetchImages(markup) {
+    $(markup).find('img').each(function() {
+      var img = new Image()
+      img.src = $(this).attr('src')
+    })
+  }
+
   function cache(route) {
     route = route
       .replace(/^\//, '')
@@ -21,6 +28,7 @@ function RouteCacheStoreModule() {
 
     return fetchPage('/' + route).then(function(text) {
       Store[route] = text
+      prefetchImages(text)
       return text
     })
   }
