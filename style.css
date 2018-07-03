@@ -280,7 +280,7 @@ code {
 
     .following, .enjoyed {
         column-count: 2;
-        column-gap: 75px;
+        column-gap: 50px;
     }
 }
 
