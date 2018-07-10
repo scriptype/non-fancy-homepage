@@ -166,7 +166,7 @@ var App = {
   BOTTOM_PAGINATION: '.main-pagination--bottom',
   PAGINATION_LINKS: '.main-pagination a',
   BOTTOM_PAGINATION_LINKS: '.main-pagination--bottom a',
-  NAVIGATION_LINKS: '.main-navigation a',
+  NAVIGATION_LINKS: '.main-navigation a:not([data-no-route])',
   TITLE: '.main-title a',
   POST_TITLE: '.main-article:not(.main-article--permalink) .permalink, .read_more',
   DISCUSS_SCRIPT_ID: 'disqus_embed',
