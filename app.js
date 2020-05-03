@@ -259,6 +259,7 @@ var App = {
   },
 
   renderDisqus(route) {
+    return false
     var previousEmbed = document.getElementById(this.DISCUSS_SCRIPT_ID)
     if (previousEmbed) {
       DISQUS.reset({

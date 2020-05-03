@@ -7,7 +7,7 @@
         <meta name="description" content="{MetaDescription}">
         {/block:Description}
 
-        <meta name='text:Disqus Shortname' content='' />
+        <!--<meta name='text:Disqus Shortname' content='' />-->
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" href="{Favicon}">
         <link rel="apple-touch-icon-precomposed" href="{PortraitURL-128}">
@@ -46,7 +46,7 @@
 
                 <h1 class="main-title"><a href="/">Enes</a></h1>
                 <nav class="main-navigation">
-                    <a class="navigation-item" href="/about-me">About</a>
+                    <a class="navigation-item" data-no-route href="/about-me">About</a>
                     <a class="navigation-item" href="/tagged/code">Code</a>
                     <a class="navigation-item" href="/tagged/photography">Photo</a>
                     <a class="navigation-item" href="/tagged/video">Video</a>
@@ -302,7 +302,7 @@
             {/block:Posts}
 
             {block:PermalinkPage}
-                <div id="disqus_thread" class="main-comments"></div>
+                <!--<div id="disqus_thread" class="main-comments"></div>-->
             {block:PermalinkPage}
             </main>
 
@@ -342,11 +342,11 @@
 
         </div>
 
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
         <script src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.3.3/backbone-min.js"></script>
 
         <script type="text/javascript">
-
             function fetchPage(url) {
               return fetch(url).then(function(result) {
                 return result.text()
@@ -355,6 +355,13 @@
 
             function RouteCacheStoreModule() {
               var Store = {}
+
+              function prefetchImages(markup) {
+                $(markup).find('img').each(function() {
+                  var img = new Image()
+                  img.src = $(this).attr('src')
+                })
+              }
 
               function cache(route) {
                 route = route
@@ -370,6 +377,7 @@
 
                 return fetchPage('/' + route).then(function(text) {
                   Store[route] = text
+                  prefetchImages(text)
                   return text
                 })
               }
@@ -507,7 +515,7 @@
               BOTTOM_PAGINATION: '.main-pagination--bottom',
               PAGINATION_LINKS: '.main-pagination a',
               BOTTOM_PAGINATION_LINKS: '.main-pagination--bottom a',
-              NAVIGATION_LINKS: '.main-navigation a',
+              NAVIGATION_LINKS: '.main-navigation a:not([data-no-route])',
               TITLE: '.main-title a',
               POST_TITLE: '.main-article:not(.main-article--permalink) .permalink, .read_more',
               DISCUSS_SCRIPT_ID: 'disqus_embed',
@@ -600,6 +608,7 @@
               },
 
               renderDisqus(route) {
+                return false
                 var previousEmbed = document.getElementById(this.DISCUSS_SCRIPT_ID)
                 if (previousEmbed) {
                   DISQUS.reset({
@@ -738,6 +747,5 @@
             window.addEventListener('DOMContentLoaded', App.init.bind(App))
 
         </script>
-
     </body>
 </html>
